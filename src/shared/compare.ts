@@ -127,3 +127,21 @@ export function compareTitle(
   }
   return `${name} · ${l} ↔ ${r}`
 }
+
+/** Whether two sources are the same version: the same kind and the same identity (a rev's revision
+ *  and path, a draft's or snapshot's id, a file's or disk's path), whatever optional fields they
+ *  carry. */
+export function sameSource(a: CompareSource, b: CompareSource): boolean {
+  switch (a.kind) {
+    case 'rev':
+      return b.kind === 'rev' && a.repo === b.repo && a.rev === b.rev && a.path === b.path
+    case 'file':
+    case 'disk':
+      return b.kind === a.kind && a.path === b.path
+    case 'draft':
+    case 'snapshot':
+      return b.kind === a.kind && a.id === b.id
+    case 'none':
+      return b.kind === 'none'
+  }
+}

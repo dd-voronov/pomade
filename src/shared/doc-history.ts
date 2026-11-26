@@ -9,6 +9,7 @@
 //   rowVsCurrent(row, ctx)       what a click on the row compares with the current doc
 //   earlierPath(row, ctx)        the other path a row's version was kept under, or null
 //   orderPair(rows, a, b)        two picked rows → [older, newer], by time
+//   sideSource / pickForSide     a comparison tab's version chips (T-224): a row on one side
 //   versionTime(ms, now)         `Nov 8 14:32`
 //
 // Row kinds, in list order, and their group (`ROW_GROUP`):
@@ -21,7 +22,7 @@
 //   commit    a commit that touched the file, renames followed, git's order         Commits
 // A new source adds a kind here and a group.
 
-import type { CompareSource } from './compare'
+import { sameSource, type CompareSource } from './compare'
 import type { FileCommit } from './git-history'
 import { formatBytes, type SnapshotOrigin, type SnapshotRef } from './local-history'
 import { isGitDiscard } from './recovery'
@@ -366,3 +367,58 @@ export const NO_REPO_LINE = 'Git history appears when this file is in a reposito
 
 /** A list with no row at all (a doc in a repo with no saved or committed version yet). */
 export const EMPTY_LINE = 'No earlier versions of this file yet.'
+
+// ─── T-224 — a comparison tab's version chips ─────────────────────────────────
+
+export type CompareSide = 'left' | 'right'
+
+/** The version a row puts on a comparison side. On the right, the row the editor holds (the
+ *  unsaved edits, else the saved file) is the live document; anywhere else a row is its version
+ *  (`rowSource`) — on the left the saved file is the file on disk, read-only. */
+export function sideSource(row: HistoryRow, side: CompareSide, rows: readonly HistoryRow[], ctx: HistoryContext): CompareSource {
+  if (side === 'right' && currentRow(rows)?.id === row.id) return { kind: 'file', path: ctx.path }
+  return rowSource(row, ctx)
+}
+
+/** Whether `row` is the version shown on `side`. */
+export function rowOnSide(
+  row: HistoryRow,
+  side: CompareSide,
+  shown: CompareSource,
+  rows: readonly HistoryRow[],
+  ctx: HistoryContext
+): boolean {
+  return sameSource(sideSource(row, side, rows, ctx), shown)
+}
+
+/** What picking `row` for `side` makes of the pair. `set`: the row's version goes on that side;
+ *  `swap`: the row is the other side's version, so the two sides trade places; `same`: it is
+ *  already there; `blocked`: the live document would land on the left (it is right-only), with the
+ *  reason a tooltip gives. The row the editor holds is right-only, so it is blocked on the left. */
+export type SidePick =
+  | { kind: 'set' | 'swap'; left: CompareSource; right: CompareSource }
+  | { kind: 'same' }
+  | { kind: 'blocked'; reason: string }
+
+export const LIVE_RIGHT_ONLY = 'Your document can only be on the right'
+export const LIVE_SWAP_BLOCKED = 'On the left — picking it here would move your document to the left. Change the left side first.'
+
+export function pickForSide(
+  row: HistoryRow,
+  side: CompareSide,
+  pair: { left: CompareSource; right: CompareSource },
+  rows: readonly HistoryRow[],
+  ctx: HistoryContext
+): SidePick {
+  // The row the editor holds is the live document, whichever side asks.
+  if (side === 'left' && sideSource(row, 'right', rows, ctx).kind === 'file') return { kind: 'blocked', reason: LIVE_RIGHT_ONLY }
+  const source = sideSource(row, side, rows, ctx)
+  const mine = side === 'left' ? pair.left : pair.right
+  if (sameSource(source, mine)) return { kind: 'same' }
+  const other: CompareSide = side === 'left' ? 'right' : 'left'
+  if (rowOnSide(row, other, side === 'left' ? pair.right : pair.left, rows, ctx)) {
+    if (pair.right.kind === 'file') return { kind: 'blocked', reason: LIVE_SWAP_BLOCKED }
+    return { kind: 'swap', left: pair.right, right: pair.left }
+  }
+  return side === 'left' ? { kind: 'set', left: source, right: pair.right } : { kind: 'set', left: pair.left, right: source }
+}

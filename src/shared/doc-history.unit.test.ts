@@ -9,6 +9,11 @@ import {
   foldedGroups,
   groupRows,
   orderPair,
+  pickForSide,
+  rowOnSide,
+  sideSource,
+  LIVE_RIGHT_ONLY,
+  LIVE_SWAP_BLOCKED,
   restoreUnderQuestion,
   restoreUnderTaken,
   rowSource,
@@ -383,5 +388,49 @@ describe('the Current group (T-266)', () => {
     expect(withGroupFolded(['changes', 'local'], 'current', false)).toEqual(['local'])
     expect(withGroupFolded(['changes'], 'current', true)).toEqual(['current'])
     expect(withGroupFolded(['local'], 'commits', true)).toEqual(['local', 'commits'])
+  })
+})
+
+describe('version chips (T-224)', () => {
+  const dirty = rowsOf({ dirty: true, disk: D, saved: { isNew: false }, drafts: [{ id: 'd', discardedAt: 5, reason: 'close' }], commits: [c1] })
+  const clean = rowsOf({ dirty: false, disk: D, saved: { isNew: false }, commits: [c1] })
+  const by = (rows: HistoryRow[], kind: string) => rows.find((r) => r.kind === kind)!
+  const live = { kind: 'file', path: ctx.path } as const
+  const disk = { kind: 'disk', path: ctx.path } as const
+  const rev1 = rowSource(by(dirty, 'commit'), ctx)
+  const draft = rowSource(by(dirty, 'draft'), ctx)
+
+  it('maps the row the editor holds to the live document on the right only', () => {
+    expect(sideSource(by(dirty, 'unsaved'), 'right', dirty, ctx)).toEqual(live)
+    expect(sideSource(by(dirty, 'saved'), 'right', dirty, ctx)).toEqual(disk)
+    expect(sideSource(by(clean, 'saved'), 'right', clean, ctx)).toEqual(live)
+    expect(sideSource(by(clean, 'saved'), 'left', clean, ctx)).toEqual(disk)
+  })
+
+  it('tells the row on each side, ignoring optional fields', () => {
+    expect(rowOnSide(by(dirty, 'commit'), 'left', { ...rev1 }, dirty, ctx)).toBe(true)
+    expect(rowOnSide(by(clean, 'saved'), 'right', live, clean, ctx)).toBe(true)
+    expect(rowOnSide(by(clean, 'saved'), 'left', live, clean, ctx)).toBe(false)
+    // A comparison opened from a Changes row holds HEAD, which no row names.
+    expect(rowOnSide(by(dirty, 'commit'), 'left', { ...rev1, kind: 'rev', rev: 'HEAD' } as typeof rev1, dirty, ctx)).toBe(false)
+  })
+
+  it('sets a side, keeps a pick that is already there, swaps the other side’s version', () => {
+    expect(pickForSide(by(dirty, 'draft'), 'left', { left: rev1, right: live }, dirty, ctx)).toEqual({ kind: 'set', left: draft, right: live })
+    expect(pickForSide(by(dirty, 'draft'), 'right', { left: rev1, right: live }, dirty, ctx)).toEqual({ kind: 'set', left: rev1, right: draft })
+    expect(pickForSide(by(dirty, 'commit'), 'left', { left: rev1, right: live }, dirty, ctx)).toEqual({ kind: 'same' })
+    // An older version on the right is allowed.
+    expect(pickForSide(by(dirty, 'commit'), 'right', { left: draft, right: disk }, dirty, ctx)).toEqual({ kind: 'set', left: draft, right: rev1 })
+    expect(pickForSide(by(dirty, 'commit'), 'right', { left: rev1, right: draft }, dirty, ctx)).toEqual({ kind: 'swap', left: draft, right: rev1 })
+    expect(pickForSide(by(dirty, 'draft'), 'left', { left: rev1, right: draft }, dirty, ctx)).toEqual({ kind: 'swap', left: draft, right: rev1 })
+  })
+
+  it('keeps the live document on the right', () => {
+    expect(pickForSide(by(dirty, 'unsaved'), 'left', { left: rev1, right: draft }, dirty, ctx)).toEqual({ kind: 'blocked', reason: LIVE_RIGHT_ONLY })
+    expect(pickForSide(by(clean, 'saved'), 'left', { left: rev1, right: live }, clean, ctx)).toEqual({ kind: 'blocked', reason: LIVE_RIGHT_ONLY })
+    // While dirty, the saved row is the disk file: it may go left.
+    expect(pickForSide(by(dirty, 'saved'), 'left', { left: rev1, right: live }, dirty, ctx)).toEqual({ kind: 'set', left: disk, right: live })
+    // The left's version picked for the right would swap the live document to the left.
+    expect(pickForSide(by(dirty, 'commit'), 'right', { left: rev1, right: live }, dirty, ctx)).toEqual({ kind: 'blocked', reason: LIVE_SWAP_BLOCKED })
   })
 })

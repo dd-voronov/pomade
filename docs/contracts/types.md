@@ -134,7 +134,7 @@ that is gone restores to a notice.
 | `TerminalTab` (`terminal` \| `agent`) | `termId`; `agentId?`; `cwd` (live last-known directory); `status: 'live' \| 'dead'`; `lastCommand?` (re-run on Relaunch); `resumeSessionId?`; `lastExec?` (last command the shell ran; pre-typed, never run, on revive); `renamed?`; `cwdAtLaunch?` (the agent CLI's launch directory, realpath); `bindState?: 'bound' \| 'unbound'`; `launchedAt?` (ISO); `appTitled?`; `unnamed?` |
 | `AppTab` (`app`) | `appId`; `icon?` (strip icon id it was opened for); `route?` (the route the tab renders: set by Pomade's navigation or the app's `tabs.setRoute`; absent = `""` for the icon-less tab, the icon's route for an icon tab); `renamed?`; T-268: `key?` (a keyed tab: one per app, key, project), `tabKind?` (its app tab kind, kept when the manifest drops it), `appTitled?` (the title came from the app: `title`, `tabs.setTitle`) |
 | `CommitTab` (`commit`) | `repo` (ws-relative root); `hash` (full) |
-| `CompareTab` (`compare`) | `left`, `right: CompareSource` |
+| `CompareTab` (`compare`) | `left`, `right: CompareSource` — changed in place by its version chips (T-224; [documents](./documents.md) "Comparison sources") |
 | `AttachedTab` (`attached`) | `session: SessionRef`; `renamed?` |
 | `ConflictTab` (`conflict`) | `repo` |
 | `BranchTab` (`branch`) | `repo`; `branch` (`feature` or `origin/feature`) |
@@ -291,4 +291,4 @@ type AttachedEvent = { type: 'state'; state } | { type: 'snapshot'; data; info; 
 interface AttachedEventPayload { tabId: Id; event: AttachedEvent }
 ```
 
-Tickets: E-010, E-012, E-015, E-024, E-025, E-026, E-027, E-033, E-034, T-019, T-149, T-150, T-185, T-226.
+Tickets: E-010, E-012, E-015, E-024, E-025, E-026, E-027, E-033, E-034, T-019, T-149, T-150, T-185, T-224, T-226.

@@ -3,7 +3,8 @@
 // drafts, saved-not-committed, the commits that touched the file across a rename), a click → a
 // comparison tab with take-old, Restore as one undoable unsaved edit in raw / live / rendered,
 // Don't save → draft row → restore, a doc outside any repo, two picked rows → version ↔ version,
-// and two tree files → Compare, plus the tree's "Show history" and Cmd+Shift+H.
+// and two tree files → Compare, plus the tree's "Show history" and Cmd+Shift+H (on a comparison tab:
+// the left version chip's list).
 // Fixture: Projects/alpha is a repo; docs/plan.md has three commits, then is renamed to
 // docs/roadmap.md (a plain rename, uncommitted) and edited on disk. Projects/beta is no repo.
 // Set POMADE_E038_SHOTS=<dir> to save review screenshots there.
@@ -409,7 +410,8 @@ test('two selected files → Compare opens the file ↔ file comparison; Show hi
   await expect(editor('Projects/alpha/docs/ver-15-july.md')).toBeVisible()
   await expect(panel()).toBeVisible()
 
-  // The shortcut toggles the panel on the active doc, and opens it from a comparison tab.
+  // The shortcut toggles the panel on the active doc; on a comparison tab it opens the left version
+  // chip's list (T-224), in place.
   await page.keyboard.press(`${MOD}+Shift+H`)
   await expect(panel()).toHaveCount(0)
   await page.keyboard.press(`${MOD}+Shift+H`)
@@ -417,7 +419,9 @@ test('two selected files → Compare opens the file ↔ file comparison; Show hi
   const cmpId = (await tabsOf(page, ALPHA)).find((t) => t.kind === 'compare' && t.title.startsWith('ver-15'))!.id
   await page.getByTestId(`tab-${cmpId}`).click()
   await page.keyboard.press(`${MOD}+Shift+H`)
-  await expect(editor('Projects/alpha/docs/ver-18-july.md')).toBeVisible()
-  await expect(panel()).toBeVisible()
-  expect(await activeIdOf(page, ALPHA)).toBe((await docTab('Projects/alpha/docs/ver-18-july.md'))!.id)
+  await expect(page.getByTestId('compare-versions')).toBeVisible()
+  await expect(compare().getByTestId('compare-chip-left')).toHaveAttribute('aria-expanded', 'true')
+  expect(await activeIdOf(page, ALPHA)).toBe(cmpId)
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('compare-versions')).toHaveCount(0)
 })

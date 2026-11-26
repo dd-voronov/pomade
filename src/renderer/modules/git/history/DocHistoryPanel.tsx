@@ -64,7 +64,7 @@ export function rowTestId(row: HistoryRow): string {
   }
 }
 
-function rowTexts(row: HistoryRow, now: number, path: string): { title: string; meta: string } {
+export function rowTexts(row: HistoryRow, now: number, path: string): { title: string; meta: string } {
   switch (row.kind) {
     case 'unsaved':
       return { title: 'Unsaved edits', meta: 'saved ↔ unsaved' }

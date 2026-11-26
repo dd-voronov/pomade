@@ -149,8 +149,15 @@ type RevisionFile = { kind: 'text'; content; commit: RevisionInfo } | { kind: 'a
 const COMPARE_MAX_BYTES = 2 * 1024 * 1024
 ```
 
-`compareMode`, `rightIsLive`, `sourcePath`, `compareKey` (one comparison tab per key per project),
-`compareTitle`. `pathThen` = the path the document had when a snapshot was kept, set only when it
+`compareMode`, `rightIsLive`, `sourcePath`, `compareKey` (opening the same pair again focuses its tab),
+`compareTitle`, `sameSource(a, b)` (the same version: kind plus identity — a rev's repo, rev and path, a
+draft's or snapshot's id, a file's or disk's path — whatever optional fields either carries).
+
+A comparison tab's sources change in place (T-224, its version chips): `setComparisonSides(projectId, tabId,
+left, right)` in `modules/git/open-compare.ts` writes `left`, `right` and the recomputed `title` through
+`updateTab` and keeps the tab (a preview tab is committed). The pane is keyed by `compareKey`, so a new pair
+re-reads both sides and rebuilds the merge view in its mode. No dedup on this path: two tabs may hold the same
+pair. `pathThen` = the path the document had when a snapshot was kept, set only when it
 differs. A `rev` side is read through `git.fileAt` ([git-state-and-history](./git-state-and-history.md));
 a draft or snapshot that was pruned renders "no longer kept". `shared/text-change.ts#minimalChange(from, to)`
 is the one prefix/suffix-trimmed replacement the CodeMirror editors apply outside changes with.
@@ -172,7 +179,11 @@ const HISTORY_GROUPS = ['current', 'discarded', 'local', 'commits']   // ROW_GRO
 
 `buildHistoryRows`, `groupRows`, `currentRow` (Unsaved edits while dirty, else the saved row),
 `rowSource(row, ctx)` (the row's version as a `CompareSource`), `rowVsCurrent`, `earlierPath`,
-`orderPair`, `rowTime`. The saved row is the file on disk, whenever it exists; it absorbs the newest
+`orderPair`, `rowTime`. For a comparison's version chips (T-224): `sideSource(row, side, rows, ctx)` (on the
+right, `currentRow` is the live document `{ kind: 'file' }`; otherwise `rowSource`), `rowOnSide`, and
+`pickForSide(row, side, { left, right }, rows, ctx)` → `SidePick` = `{ kind: 'set' | 'swap'; left; right }`
+(swap: the row is the other side's version) | `{ kind: 'same' }` | `{ kind: 'blocked'; reason }` (the live
+document on the left — `LIVE_RIGHT_ONLY` — or a swap that would put it there — `LIVE_SWAP_BLOCKED`). The saved row is the file on disk, whenever it exists; it absorbs the newest
 snapshot when that snapshot's `hash` equals `disk.hash` (`blobHash` of the disk text, from
 `shared/local-history.ts`) and the snapshot is not a rename's. A new row source adds a kind, a group
 and a `rowSource` case. Folded groups persist in `AppSettings.docHistoryFolded`; `foldedGroups` reads
@@ -209,4 +220,4 @@ copy under `''` + its tab id, and registers no doc channel.
   buffer read flush first), `openFind` / `closeFind`, `gotoLine(n)`, `find`, caret and viewport
   anchors (`getCaretAnchor` / `setCaretAnchor` / `getViewportAnchor`).
 
-Tickets: E-035, E-037, E-038, E-044, T-142, T-219, T-223, T-226.
+Tickets: E-035, E-037, E-038, E-044, T-142, T-219, T-223, T-224, T-226.

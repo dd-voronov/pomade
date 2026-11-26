@@ -191,8 +191,9 @@ Actions: `newTerminal(project, { afterTabId? })`, `newCommandTerminal(projectId,
 | `modules/git/ops/git-runs-store` | `{ runs, jobsEpoch }`; `startGitRuns()`, `seeRuns(root)`; marks under `git-run:<root>` |
 | `modules/git/branches/branches-store` | In progress per repo; `load(repo)`, `backgroundFetch(repo)` (at most every 5 min) |
 | `modules/git/history/doc-history-store` | `{ open: Record<tabId, true>, toggle, show, hide }` |
+| `modules/git/compare/version-chip-store` | `{ open: Record<tabId, 'left' \| 'right'>, show(tabId, side), hide(tabId) }` — the comparison tab whose version chip's list is open, session-only; Cmd+Shift+H shows `left` on the active comparison tab |
 | `modules/apps/overlay-store` | the one open overlay ([host-api-frames](./host-api-frames.md) §"Overlays") |
 | `modules/side-panels/app-panel-routes` | `{ routes: Record<stripKey, string>, setRoute(key, route) }` — the route `panel.show` gave each app panel, runtime only ([host-api-frames](./host-api-frames.md) §"Delegated calls") |
 | `modules/settings/settings-store` | `{ open, sectionId, openSettings(sectionId?), closeSettings, setSection }` |
 
-Tickets: E-004, E-011, E-016, E-022, E-026, E-029, T-097, T-103, T-107, T-117, T-118, T-149, T-151, T-156, T-157, T-170, T-189.
+Tickets: E-004, E-011, E-016, E-022, E-026, E-029, T-097, T-103, T-107, T-117, T-118, T-149, T-151, T-156, T-157, T-170, T-189, T-224.

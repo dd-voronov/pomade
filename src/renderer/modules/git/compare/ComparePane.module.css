@@ -62,7 +62,7 @@
 .label {
   display: flex;
   flex: 1 1 0;
-  align-items: baseline;
+  align-items: center;
   gap: 0;
   min-width: 0;
   height: 28px;
@@ -116,6 +116,58 @@
   overflow: hidden;
   color: var(--text-faint);
   text-overflow: ellipsis;
+}
+
+/* T-224 — the version chip: the side's version as a quiet button that opens its version list. The
+   negative margin keeps its text where the plain label's was. */
+.chip {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  min-width: 0;
+  height: 22px;
+  margin-left: -7px;
+  padding: 0 6px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.chip:hover {
+  border-color: var(--border-strong);
+  background: var(--panel-raised);
+}
+
+.chip[aria-expanded='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.chip[aria-expanded='true'] .labelMain {
+  color: var(--badge-fg);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.chipChevron {
+  display: inline-flex;
+  flex: none;
+  margin-left: 6px;
+  color: var(--text-faint);
+}
+
+.chip:hover .chipChevron,
+.chip[aria-expanded='true'] .chipChevron {
+  color: var(--text-muted);
 }
 
 /* T-226 — "Open in tab" on a side that is a fixed version: that version in its own editable tab. */

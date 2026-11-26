@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { compareKey, compareMode, compareTitle, rightIsLive, sourcePath, type CompareSource } from './compare'
+import { compareKey, compareMode, compareTitle, rightIsLive, sameSource, sourcePath, type CompareSource } from './compare'
 
 const now = new Date(2026, 10, 10, 12).getTime()
 const c = (hash: string, mo: number, d: number, y = 2026): { hash: string; date: number; subject: string } => ({
@@ -91,5 +91,17 @@ describe('compareKey', () => {
   it('is stable for equal sources and differs otherwise', () => {
     expect(compareKey(rev('HEAD'), file())).toBe(compareKey(rev('HEAD'), file()))
     expect(compareKey(rev('HEAD'), file())).not.toBe(compareKey(disk(), file()))
+  })
+})
+
+describe('sameSource (T-224)', () => {
+  it('matches by identity, not by optional fields or key order', () => {
+    const snap: CompareSource = { kind: 'snapshot', path: 'a.md', id: 's1', at: 1, origin: 'saved' }
+    expect(sameSource(snap, { path: 'a.md', kind: 'snapshot', origin: 'saved', at: 1, id: 's1', pathThen: 'b.md' })).toBe(true)
+    expect(sameSource(snap, { ...snap, id: 's2' })).toBe(false)
+    expect(sameSource({ kind: 'rev', repo: 'r', rev: 'abc', path: 'a.md' }, { kind: 'rev', repo: 'r', rev: 'abc', path: 'a.md' })).toBe(true)
+    expect(sameSource({ kind: 'rev', repo: 'r', rev: 'abc', path: 'a.md' }, { kind: 'rev', repo: 'r', rev: 'HEAD', path: 'a.md' })).toBe(false)
+    expect(sameSource({ kind: 'file', path: 'a.md' }, { kind: 'disk', path: 'a.md' })).toBe(false)
+    expect(sameSource({ kind: 'none' }, { kind: 'none' })).toBe(true)
   })
 })

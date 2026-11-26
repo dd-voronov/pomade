@@ -11,6 +11,10 @@
 // applied once its buffer has loaded, provided the file did not change in between.
 //
 // Hidden, never unmounted: the pane registers no window listener; Cmd+S is captured on its root.
+//
+// T-224 — each side's label is a version chip: it opens that side's version list (VersionList) and a
+// pick changes the tab's sources in place. The body is keyed by the pair, so a new pair re-reads
+// both sides and rebuilds the merge view in its mode, as a freshly opened tab would.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MergeView } from '@codemirror/merge'
@@ -18,7 +22,8 @@ import { Annotation, EditorState, Transaction, type Extension } from '@codemirro
 import { EditorView, keymap, lineNumbers } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 
-import { compareMode, rightIsLive, sourcePath, type CompareSource } from '@shared/compare'
+import { compareKey, compareMode, rightIsLive, sourcePath, type CompareSource } from '@shared/compare'
+import type { CompareSide } from '@shared/doc-history'
 import { isDocTabOf, isVersionSource } from '@shared/doc-version'
 import { minimalChange } from '@shared/text-change'
 import type { CompareTab, Tab } from '@shared/types'
@@ -28,6 +33,7 @@ import { useToast } from '../../../hooks/useToast'
 import { cleanIpcError } from '../../../lib/ipc-errors'
 import { useAppSettingsStore } from '../../../stores/app-settings-store'
 import { useTabsStore } from '../../../stores/tabs-store'
+import { useWorkspaceStore } from '../../../stores/workspace-store'
 import { buildEditorTheme } from '../../editor/cm-theme'
 import { languageExtension } from '../../editor/doc-kind'
 import { findDocChannel, onDocChannels, type DocChannel, type DocChannelState } from '../../editor/doc-buffers'
@@ -37,6 +43,8 @@ import { openComparison } from '../open-compare'
 import { openVersionTab } from '../history/open-version'
 import { readDiskSide, readSide, type SideContent } from './compare-sides'
 import { mountFoldBands, type FoldBands } from './fold-bands'
+import { useVersionChipStore } from './version-chip-store'
+import { VersionList } from './VersionList'
 import editorStyles from '../../editor/EditorPane.module.css'
 import styles from './ComparePane.module.css'
 
@@ -78,6 +86,15 @@ function renderTakeOld(): HTMLElement {
   return b
 }
 
+/** The version chip's chevron. */
+function ChevronDown(): React.JSX.Element {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+      <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 /** The live doc tab for `path` in `projectId`, following panes as they mount and unmount. */
 function useDocChannel(projectId: string, path: string, enabled: boolean): DocChannel | null {
   const [channel, setChannel] = useState<DocChannel | null>(() => (enabled ? findDocChannel(projectId, path) : null))
@@ -94,21 +111,39 @@ function SideLabel({
   side,
   testId,
   dirty,
-  onOpen
+  onOpen,
+  chip
 }: {
   side: SideContent | null
   testId: string
   dirty?: boolean
   /** T-226 — the side is a fixed version: open it in its own tab. */
   onOpen?: () => void
+  /** T-224 — the version chip: the side's version, a click opens its list. */
+  chip: { side: CompareSide; open: boolean; onClick: () => void; ref: React.MutableRefObject<HTMLButtonElement | null> }
 }): React.JSX.Element {
   const text = side ? side.label : 'Loading…'
   const detail = side && side.status === 'ok' ? side.detail : undefined
   return (
     <span className={styles.label} data-testid={testId} data-dirty={dirty || undefined}>
-      <span className={styles.labelMain}>{text}</span>
-      {dirty && <span className={styles.labelDirty}>unsaved edits</span>}
-      {detail && <span className={styles.labelDetail}>{detail}</span>}
+      <Tooltip lines={[chip.side === 'left' ? 'Choose the version on the left' : 'Choose the version on the right']}>
+        <button
+          ref={chip.ref}
+          type="button"
+          className={styles.chip}
+          data-testid={`compare-chip-${chip.side}`}
+          aria-haspopup="dialog"
+          aria-expanded={chip.open}
+          onClick={chip.onClick}
+        >
+          <span className={styles.labelMain}>{text}</span>
+          {dirty && <span className={styles.labelDirty}>unsaved edits</span>}
+          {detail && <span className={styles.labelDetail}>{detail}</span>}
+          <span className={styles.chipChevron}>
+            <ChevronDown />
+          </span>
+        </button>
+      </Tooltip>
       {side?.status === 'ok' && side.commit && (
         <span className={styles.labelSubject} title={side.commit.subject}>
           {side.commit.subject}
@@ -127,8 +162,12 @@ function SideLabel({
   )
 }
 
-export function ComparePane({ tab }: { tab: Tab }): React.JSX.Element | null {
+export function ComparePane({ tab }: { tab: Tab }): React.JSX.Element {
   const t = tab as CompareTab
+  return <ComparePaneBody key={compareKey(t.left, t.right)} t={t} />
+}
+
+function ComparePaneBody({ t }: { t: CompareTab }): React.JSX.Element {
   const { projectId } = t
   const mode = compareMode(t.left, t.right)
   const live = rightIsLive(t.right)
@@ -151,6 +190,7 @@ export function ComparePane({ tab }: { tab: Tab }): React.JSX.Element | null {
   const setChangesOnly = useAppSettingsStore((s) => s.setCompareChangesOnly)
 
   const hostRef = useRef<HTMLDivElement | null>(null)
+  const paneRef = useRef<HTMLDivElement | null>(null)
   const mergeRef = useRef<MergeView | null>(null)
   /** Whether the built merge view has its unchanged runs folded. */
   const foldedRef = useRef(false)
@@ -442,6 +482,33 @@ export function ComparePane({ tab }: { tab: Tab }): React.JSX.Element | null {
       )
     }
   }
+  // ── T-224: the version chips ──────────────────────────────────────────────────
+  const chipOpen = useVersionChipStore((s) => s.open[t.id])
+  const showChip = useVersionChipStore((s) => s.show)
+  const hideChip = useVersionChipStore((s) => s.hide)
+  const shown = useTabsStore((s) => s.activeTabByProject[projectId] === t.id)
+  const activeProject = useWorkspaceStore((s) => s.activeProjectId === projectId)
+  const visible = shown && activeProject
+  const leftChipRef = useRef<HTMLButtonElement | null>(null)
+  const rightChipRef = useRef<HTMLButtonElement | null>(null)
+  // A list belongs to the tab on screen: switching away closes it.
+  useEffect(() => {
+    if (!visible && chipOpen) hideChip(t.id)
+  }, [visible, chipOpen, hideChip, t.id])
+  useEffect(() => () => hideChip(t.id), [hideChip, t.id])
+  const closeChip = (): void => {
+    hideChip(t.id)
+    paneRef.current?.focus()
+  }
+  const chip = (side: CompareSide): React.ComponentProps<typeof SideLabel>['chip'] => ({
+    side,
+    open: chipOpen === side,
+    onClick: () => (chipOpen === side ? hideChip(t.id) : showChip(t.id, side)),
+    ref: side === 'left' ? leftChipRef : rightChipRef
+  })
+  // The chips are mounted before a list can open (a click on one, or Cmd+Shift+H on the tab on screen).
+  const chipAnchor = chipOpen ? (chipOpen === 'left' ? leftChipRef : rightChipRef).current : null
+
   const folder = useMemo(() => {
     const i = docPath.lastIndexOf('/')
     return i < 0 ? '' : docPath.slice(0, i)
@@ -449,6 +516,7 @@ export function ComparePane({ tab }: { tab: Tab }): React.JSX.Element | null {
 
   return (
     <div
+      ref={paneRef}
       className={styles.pane}
       data-testid="compare-pane"
       data-mode={mode}
@@ -492,15 +560,32 @@ export function ComparePane({ tab }: { tab: Tab }): React.JSX.Element | null {
       </div>
 
       <div className={styles.labels} data-live={live || undefined}>
-        <SideLabel side={named(left, sourcePath(t.left))} testId="compare-label-left" onOpen={openSide(t.left, left)} />
+        <SideLabel
+          side={named(left, sourcePath(t.left))}
+          testId="compare-label-left"
+          onOpen={openSide(t.left, left)}
+          chip={chip('left')}
+        />
         {live && <span className={styles.labelGap} aria-hidden="true" />}
         <SideLabel
           side={named(right, sourcePath(t.right))}
           testId="compare-label-right"
           dirty={dirty}
           onOpen={openSide(t.right, right)}
+          chip={chip('right')}
         />
       </div>
+      {visible && chipOpen && chipAnchor && (
+        <VersionList
+          projectId={projectId}
+          tabId={t.id}
+          side={chipOpen}
+          path={docPath}
+          pair={{ left: t.left, right: t.right }}
+          anchor={chipAnchor}
+          onClose={closeChip}
+        />
+      )}
 
       {live && mode === 'disk-mine' && changedOutside && chanState && !chanState.missing && (
         <div className={styles.resolve} data-testid="compare-resolve">

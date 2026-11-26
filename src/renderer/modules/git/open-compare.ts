@@ -4,6 +4,7 @@
 //   openComparison(projectId, left, right, opts)     any two sources
 //   openChange(…) (open-change.ts)                    Changes row → HEAD ↔ the current document
 //   openCommitFile(projectId, repo, commit, file)     commit-details file → parent ↔ commit
+//   setComparisonSides(projectId, tabId, left, right) T-224: a comparison tab's sides changed in place
 
 import { nanoid } from 'nanoid'
 
@@ -85,4 +86,14 @@ export function openCommitFile(
   const right: CompareSource = { kind: 'rev', repo, rev: commit.hash, path }
   const self: RevisionInfo = { hash: commit.hash, date: commit.date, subject: commit.subject }
   return openComparison(projectId, left, right, { preview: opts.preview, info: { right: self } })
+}
+
+/** T-224 — a comparison tab shows another pair in place: its sources and title change, the pane
+ *  re-reads both sides. A preview tab is kept: the user worked in it. Another tab may already show
+ *  the same pair; both stay. */
+export async function setComparisonSides(projectId: Id, tabId: Id, left: CompareSource, right: CompareSource): Promise<void> {
+  const [l, r] = await Promise.all([revisionOf(left), revisionOf(right)])
+  const tabs = useTabsStore.getState()
+  tabs.commitPreview(projectId, tabId)
+  tabs.updateTab(projectId, tabId, { left, right, title: compareTitle(left, right, { left: l, right: r }, Date.now()) })
 }
