@@ -2,7 +2,7 @@
   "repos": [
     {
       "repo": "https://github.com/dd-voronov/pomade-planner.git",
-      "tag": "v0.2.2",
+      "tag": "v0.2.3",
       "apps": {
         "pomade-planner": "dist/planner",
         "pomade-board": "dist/board"
