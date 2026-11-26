@@ -10,5 +10,7 @@ test-results/
 playwright-report/
 *.tsbuildinfo
 .claude/worktrees/
-docs/auxiliary/quick-note.md
 e2e/artifacts/
+
+# the private repo, checked out beside the code
+/private/

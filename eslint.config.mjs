@@ -70,6 +70,7 @@ function typeAwareProject(project) {
 export default tseslint.config(
   {
     ignores: [
+      'private/**',
       'out/**',
       'dist/**',
       'dist-electron/**',
