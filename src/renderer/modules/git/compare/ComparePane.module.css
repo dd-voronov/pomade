@@ -1,0 +1,315 @@
+/* E-037 — the comparison tab. The header reuses the editor header (EditorPane.module.css); below it
+   a label row naming each side, the rule-8 notices, then the merge view, which scrolls both sides
+   as one. */
+
+.pane {
+  /* the take-old column's width, shared by the label row's spacer */
+  --compare-gap: 28px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-raised);
+  outline: none;
+}
+
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.name {
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  text-overflow: ellipsis;
+}
+
+.folder {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── side labels: one per column, the right one after the take-old column ── */
+
+.labels {
+  display: flex;
+  flex: none;
+  /* the same gutter the merge view reserves, so each label sits over its column */
+  overflow: hidden;
+  scrollbar-gutter: stable;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.label {
+  display: flex;
+  flex: 1 1 0;
+  align-items: baseline;
+  gap: 0;
+  min-width: 0;
+  height: 28px;
+  padding: 0 var(--space-3);
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  line-height: 28px;
+  white-space: nowrap;
+}
+
+.label + .label,
+.labelGap + .label {
+  border-left: 1px solid var(--border);
+}
+
+.labelGap {
+  flex: none;
+  width: var(--compare-gap);
+}
+
+.labelMain {
+  flex: none;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: var(--fw-medium);
+}
+
+.labelDirty {
+  flex: none;
+  color: var(--accent-active);
+  font-weight: var(--fw-medium);
+}
+
+.labelDetail {
+  flex: none;
+  color: var(--text-faint);
+}
+
+.labelDirty::before,
+.labelDetail::before {
+  content: '·';
+  margin: 0 6px;
+  color: var(--text-faint);
+  font-weight: var(--fw-normal);
+}
+
+.labelSubject {
+  min-width: 0;
+  margin-left: var(--space-2);
+  overflow: hidden;
+  color: var(--text-faint);
+  text-overflow: ellipsis;
+}
+
+/* T-226 — "Open in tab" on a side that is a fixed version: that version in its own editable tab. */
+.labelOpenWrap {
+  display: flex;
+  flex: none;
+  align-self: center;
+  margin-left: auto;
+  padding-left: var(--space-2);
+}
+
+.labelOpen {
+  height: 20px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: 18px;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.labelOpen:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+
+/* ── the disk ↔ my edits resolution bar ── */
+
+.resolve {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--warning);
+  background: var(--warning-soft);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+
+.resolveText {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.resolveBtn {
+  flex: none;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.resolveBtn:hover {
+  background: var(--hover-bg);
+}
+
+/* ── the merge view ── */
+
+.message {
+  padding: var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.host {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.host[hidden] {
+  display: none;
+}
+
+.host :global(.cm-mergeView) {
+  min-height: 100%;
+}
+
+.host :global(.cm-mergeViewEditors) {
+  min-height: 100%;
+}
+
+.host :global(.cm-mergeViewEditor) {
+  min-width: 0;
+}
+
+.host :global(.cm-mergeViewEditor + .cm-mergeViewEditor),
+.host :global(.cm-merge-revert + .cm-mergeViewEditor) {
+  border-left: 1px solid var(--border);
+}
+
+/* The take-old column between the sides; one control per change, level with its chunk. */
+.host :global(.cm-merge-revert) {
+  width: var(--compare-gap);
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+}
+
+.host :global(.cm-merge-revert) .takeOld {
+  position: absolute;
+  left: 3px;
+  width: 22px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.host :global(.cm-merge-revert) .takeOld:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+
+.host :global(.cm-merge-revert) .takeOld:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* T-267 — Changes only: the fold bar the library puts where a run of unchanged lines was hidden —
+   `⦚ N unchanged lines ⦚`, centred, on the accent wash. The selector outweighs the library's own
+   light/dark gradients. */
+.host :global(.cm-mergeView .cm-editor .cm-collapsedLines),
+.foldBand {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--accent-soft);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.host :global(.cm-mergeView .cm-editor .cm-collapsedLines) {
+  padding: 4px var(--space-3);
+  color: var(--badge-fg);
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  line-height: 18px;
+  text-align: center;
+}
+
+/* Hovering any part of a band lights all of it (fold-bands.ts marks the parts). */
+.host :global(.cm-mergeView .cm-editor .cm-collapsedLines:hover),
+.host :global(.cm-mergeView .cm-editor .cm-collapsedLines[data-fold-hover]),
+.foldBand[data-fold-hover] {
+  background: color-mix(in srgb, var(--accent-soft) 70%, var(--accent));
+}
+
+/* T-278 — the rest of each band (fold-bands.ts): the left side's gutters, and from the left side's
+   edge to the right side's content — the take-old column and the right side's gutters. The pieces sit
+   in the editors' row, above both sides; each side is its own stacking context so the library's
+   gutters (z-index 200) stay inside it. */
+.host :global(.cm-mergeViewEditors) {
+  position: relative;
+}
+
+.host :global(.cm-mergeViewEditor) {
+  isolation: isolate;
+}
+
+.foldBands {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.foldBand {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+/* The sides never scroll on their own (the host scrolls both): no scrollbar gutter, so a band — and a
+   changed line's wash — runs to the side's edge. */
+.host :global(.cm-mergeView .cm-scroller) {
+  scrollbar-gutter: auto;
+}

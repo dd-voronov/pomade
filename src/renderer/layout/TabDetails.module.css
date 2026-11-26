@@ -1,0 +1,56 @@
+/* Pomade T-150 — "Show tab details" popup body. Lives inside the shared Modal shell (scrim +
+   dialog + footer); this file styles only the JSON editor, subtitle, hint, and error. */
+
+.subtitle {
+  margin: 0 0 var(--space-3);
+  font-size: var(--fs-sm);
+  line-height: var(--lh);
+  color: var(--text-muted);
+}
+
+.editor {
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  max-height: 52vh;
+  box-sizing: border-box;
+  padding: var(--space-3);
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  tab-size: 2;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  white-space: pre;
+  overflow: auto;
+}
+
+.editor:focus {
+  outline: none;
+  border-color: var(--border-strong);
+}
+
+.hint {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--warning);
+  background: var(--warning-soft);
+  border-radius: var(--radius-sm);
+}
+
+.error {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  line-height: 1.45;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

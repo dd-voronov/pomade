@@ -1,0 +1,164 @@
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--panel-raised);
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+}
+
+.xterm {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+/* xterm's own viewport scrollbar: keep it subtle and on-theme. */
+.xterm :global(.xterm-viewport)::-webkit-scrollbar {
+  width: 10px;
+}
+.xterm :global(.xterm-viewport)::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+/* ── E-020 (T-084): copy confirmation ──
+   A quiet, non-blocking flash in the pane's bottom-right corner. Deliberately NOT a toast:
+   the feedback belongs to the terminal the user just dragged across, not to the whole app,
+   and a toast would queue behind unrelated ones. */
+.copyHint {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  z-index: var(--z-terminal-copy-hint);
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  pointer-events: none;
+  box-shadow: var(--shadow-1);
+  animation: copyHintFade var(--copy-hint-dur, 1.5s) var(--ease) forwards;
+}
+
+@keyframes copyHintFade {
+  0% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ── E-020 (T-084/T-086): the pane's context menu + link picker render through the shared
+   ContextMenu primitive (T-158). Only the picker's two-line row content remains here. ──
+   Picker rows: filename on top, its folder underneath — the folder IS the disambiguator. */
+.candidate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+.candidateName {
+  font-weight: var(--fw-medium);
+}
+.candidateDir {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+
+/* ── Dead-terminal state ── */
+.dead {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.deadDiamond {
+  width: 26px;
+  height: 26px;
+  margin-bottom: var(--space-2);
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  transform: rotate(45deg);
+  border-radius: var(--radius-sm);
+}
+
+.deadTitle {
+  margin: 0;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+}
+
+.deadMeta {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+.deadMeta code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--text-muted);
+}
+
+.deadActions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.primaryBtn,
+.ghostBtn {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.primaryBtn {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+.primaryBtn:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.ghostBtn {
+  border: 1px solid var(--border-strong);
+  background: var(--panel-raised);
+  color: var(--text);
+}
+.ghostBtn:hover {
+  background: var(--hover-bg);
+}
+
+/* T-044/T-169 — the close-a-running-terminal confirmation now renders through the shared
+   DialogShell (components/DialogShell.tsx + dialog.module.css); its scrim/modal/title/text/row/
+   btnGhost/btnPrimary CSS (byte-identical to the editor's copy) is gone from here. */

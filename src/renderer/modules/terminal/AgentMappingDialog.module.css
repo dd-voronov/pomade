@@ -1,0 +1,35 @@
+/* Pomade — AgentMappingDialog's own body copy (T-169). The dialog chrome (scrim, header, close
+   button, footer buttons) comes from the shared Modal + Button (components/); only this dialog's
+   intro hint + field label are local. */
+
+.hint {
+  margin: 0 0 var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+}
+
+/* Mono font deliberately kept (not the shared fields.tsx TextInput, which is font-ui) — this
+   field holds a shell command. */
+.input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}

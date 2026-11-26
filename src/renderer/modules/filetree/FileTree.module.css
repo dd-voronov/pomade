@@ -1,0 +1,692 @@
+.tree {
+  display: flex;
+  flex-direction: column;
+  width: var(--filetree-w);
+  min-width: var(--filetree-w);
+  height: 100%;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  /* T-138 — reserve the scrollbar gutter so appearing/removing the vertical scrollbar never
+     reflows the panel horizontally (rows + top-strip icons stay put). Pairs with the custom
+     ::-webkit-scrollbar (global.css), which renders a classic, space-occupying scrollbar in
+     both macOS scrollbar modes. */
+  scrollbar-gutter: stable;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* E-018 — the header title plus the live multi-selection count. */
+.headerTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* E-018 — how many rows the next bulk action would touch. Quiet accent chip (informational,
+   not an alert — the red numeric counters are reserved for attention). */
+.selCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-active);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.headerActions {
+  display: flex;
+  gap: 2px;
+}
+
+.headerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.headerBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.rootRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  /* Constant height: the hover-action strip is always in layout (see .rootActions), so the row
+     never grows on hover. min-height fits the 24px action buttons so hovered == not-hovered. */
+  min-height: var(--icon-btn);
+  padding: var(--space-1) var(--space-4);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+}
+
+/* The path label sizes to its CONTENT (shrinking with ellipsis when cramped) so the home chip /
+   ⚠ mark sit attached immediately AFTER the text — not pushed to a right edge. The action strip
+   is floated right on its own via margin-left:auto. */
+.rootPath {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* T-032 / T-135 — Copy full path · Reveal in Finder · Unmount. The strip is ALWAYS in layout
+   (space permanently reserved → no jump), pushed to the right edge, and revealed on row hover or
+   keyboard focus via opacity + visibility. visibility:hidden keeps it non-interactive and out of
+   the accessibility tree until shown, while its box still reserves the width. */
+.rootActions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: none;
+  margin-left: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.rootRow:hover .rootActions,
+.rootRow:focus-within .rootActions {
+  opacity: 1;
+  visibility: visible;
+}
+
+.body {
+  flex: 1;
+  padding: var(--space-1) 0 var(--space-4);
+  min-height: 40px;
+}
+
+.branch {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nested wrapper around a directory's children: each level of nesting contributes one
+   step of indent + one indent-guide line, so ancestor guides stack naturally without
+   any depth-based math in the component. */
+.children {
+  display: flex;
+  flex-direction: column;
+  margin-left: calc(var(--tree-indent) / 2);
+  padding-left: calc(var(--tree-indent) / 2);
+  border-left: 1px solid var(--border);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--tree-row-h);
+  padding: 0 var(--space-2);
+  color: var(--text);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.row:hover {
+  background: var(--hover-bg);
+}
+
+.row:active {
+  background: var(--active-bg);
+}
+
+/* E-012 (round-3) — the selected row: a quiet, persistent icy-blue wash (the accent-derived
+   --selection tint), distinct from the neutral grey hover. Declared after :hover/:active so it
+   wins for equal specificity and the selection stays visible while hovering. */
+.rowSelected,
+.rowSelected:hover,
+.rowSelected:active {
+  background: var(--selection);
+}
+
+/* Ignored entries (T-019): only ever rendered when the "show ignored" toggle is on
+   (fs.tree omits them by default) — dimmed to read as present-but-excluded, not broken. */
+.rowIgnored {
+  color: var(--text-faint);
+  opacity: 0.6;
+}
+
+.rowIgnored:hover {
+  opacity: 0.85;
+}
+
+.twisty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-faint);
+  flex: none;
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.twistyOpen {
+  transform: rotate(90deg);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tree-icon);
+  height: var(--tree-icon);
+  flex: none;
+  color: var(--text-muted);
+}
+
+/* Folder icons are accent-tinted (echoing the workspace-root diamond marker); file icons
+   stay neutral. Scoped via :has so no extra prop/class is needed on .icon itself. */
+.row[data-kind='dir'] .icon {
+  color: var(--accent);
+}
+
+.rowName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+}
+
+/* T-158 — the file-tree context menu (section / root / bulk / single variants) renders through
+   the shared ContextMenu primitive; its scrim, menu, item, header, and separator CSS is gone. */
+
+/* E-012 — drag-and-drop drop-target highlight on a folder / the root row. */
+.rowDrop {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.rowDrop:hover {
+  background: var(--accent-soft);
+}
+
+/* E-012 (round-3) — symlink indicator: an accent chain-link glyph on a soft-accent rounded chip
+   trailing the name. Bigger + accent-colored (was a muted 10px arrow) so it's clearly visible.
+   E-012 (final) — now a keyboard-focusable button opening the target popover. */
+.symlink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  /* Right-align (trailing column) so the row's large empty area — including its geometric
+     center — belongs to the row and opens the file; only the indicator itself opens the popover. */
+  margin-left: auto;
+  width: 15px;
+  height: 15px;
+  padding: 2px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.symlink:hover {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.symlink:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+/* An unwatched folder's mark: a struck bell in the symlink indicator's trailing 15px column,
+   faint and bare (no chip) — a state to notice, not a control. */
+.unwatched {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin-left: auto;
+  width: 15px;
+  height: 15px;
+  padding: 1px;
+  color: var(--text-faint);
+}
+
+.unwatched svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* After a symlink indicator the auto margin belongs to the indicator. */
+.unwatchedAfterSymlink {
+  margin-left: var(--space-1);
+}
+
+/* E-012 (final) — a broken link tints the indicator danger so it reads as broken at a glance. */
+.symlinkBroken {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+
+.symlinkBroken:hover {
+  background: var(--danger);
+  color: var(--accent-contrast);
+}
+
+/* P-021 — go-to-path row: one quiet input below the header, above the tree root row. Muted
+   until focused so it never competes with the tree; an inline error rides its right edge. */
+.gotoRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) var(--space-2);
+}
+
+/* T-058 — the field chrome (border, background, focus ring) lives on the BOX that holds
+   both the input and the embedded paste button, so they read as one control. overflow
+   hidden squares the button's corners into the box radius; the focus box-shadow is not
+   clipped by it. */
+.gotoBox {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+
+.gotoBox:focus-within {
+  background: var(--panel-raised);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.gotoBoxError {
+  border-color: var(--danger);
+}
+
+.gotoBoxError:focus-within {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 40%, transparent);
+}
+
+.gotoInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--space-2);
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+.gotoInput::placeholder {
+  color: var(--text-faint);
+}
+
+.gotoInput:focus {
+  outline: none;
+}
+
+.gotoError {
+  flex: none;
+  color: var(--danger);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+/* T-122 — "did you mean ~/…?" suggestion popover, anchored under the goto box. Scrim + panel
+   shell is the shared Popover primitive (components/Popover.tsx, T-169); position is set inline
+   by GotoBox. */
+.gotoHintPop {
+  padding: var(--space-2) var(--space-3);
+}
+
+.gotoHintText {
+  padding-right: var(--space-3);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+.gotoHintPath {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.gotoHintActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+}
+
+.gotoHintApply {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.gotoHintApply:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.gotoHintClose {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.gotoHintClose:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+/* P-021/T-058 — paste button EMBEDDED at the right edge of the goto box, split off by a
+   thin separator; fills the input with the clipboard (the user presses Enter to go). */
+.gotoPaste {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: 100%;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.gotoPaste:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+.gotoPaste:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+/* E-016 — move-collision dialog body copy. */
+.collisionText {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+/* ── E-026 — multiple mounted roots ──────────────────────────────────────────── */
+
+/* A root section stacks its header line and (when open) its children inside the body. */
+.rootSection {
+  display: flex;
+  flex-direction: column;
+}
+
+/* E-026 (T-135) — the collapse toggle at the head of every root header is a DIAMOND (a rotated
+   square), visually distinct from the per-dir chevron twisties so a root never reads as a
+   subfolder. No subfolder-like left indent. It is color-coded by scope (via --diamond-color,
+   set per data-scope below) and ALWAYS visible. Two states: hollow (collapsed) = outline only,
+   solid (expanded) = filled. box-sizing keeps the box identical across the two states. */
+.rootDiamond {
+  box-sizing: border-box;
+  width: 9px;
+  height: 9px;
+  flex: none;
+  transform: rotate(45deg);
+  border-radius: 1px;
+  border: 1.5px solid var(--diamond-color, var(--accent));
+  background: transparent;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.rootDiamondSolid {
+  background: var(--diamond-color, var(--accent));
+}
+
+.rootDiamond[data-scope='in-project'] {
+  --diamond-color: var(--accent);
+}
+
+.rootDiamond[data-scope='outside-project'] {
+  --diamond-color: var(--warning);
+}
+
+.rootDiamond[data-scope='outside-workspace'] {
+  --diamond-color: var(--danger);
+}
+
+/* The root header's path label: the leaf is emphasized, the parent dirs dimmed. */
+.rootPathParent {
+  color: var(--text-faint);
+}
+
+.rootPathLeaf {
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+}
+
+/* The project root's always-visible "home" pill. */
+.homeChip {
+  display: inline-flex;
+  align-items: center;
+  height: 15px;
+  padding: 0 6px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-active);
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex: none;
+}
+
+/* A root whose folder no longer resolves (T-135): the path text greys out AND strikes through, so
+   "this route is dead" reads at a glance. The always-red ⚠ (a ScopeMark, danger) carries the
+   two-line tooltip. Kept (never auto-removed) and still unmountable. */
+.rootMissing .rootPathLeaf,
+.rootMissing .rootPathParent {
+  color: var(--text-faint);
+}
+
+/* Strike the whole label (set on the container so parent-prefix + leaf are struck as one). */
+.rootMissing .rootPath {
+  text-decoration: line-through;
+}
+
+.rootMissing {
+  opacity: 0.7;
+}
+
+/* T-144 — inline rename of a mount's header label. Matches the TabStrip terminal-title rename
+   input (accent-outlined, panel-raised) but keeps the header's mono font and sits in place of the
+   .rootPath label so the row height never changes. */
+.rootRenameInput {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 1px var(--space-1);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  outline: none;
+}
+
+/* A briefly-flashed root header (a duplicate paste jumps to it; a fresh mount draws the eye). */
+.rootFlash {
+  animation: rootFlash 0.9s var(--ease);
+}
+
+@keyframes rootFlash {
+  0%,
+  100% {
+    background: transparent;
+  }
+  25%,
+  60% {
+    background: var(--accent-soft);
+  }
+}
+
+/* A root's children wrapper (indent handled by the nested .children guides within). */
+.rootChildren {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mount popup input + live scope hint. */
+.mountInput {
+  width: 100%;
+  height: 30px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+.mountInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.mountHint {
+  margin-top: var(--space-2);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+.mountHintInfo {
+  color: var(--accent-active);
+}
+
+.mountHintWarning {
+  color: var(--warning);
+}
+
+.mountHintDanger {
+  color: var(--danger);
+}
+
+.mountHintMuted {
+  color: var(--text-muted);
+}
+
+/* E-047 — the mount dialog's Add to project scope box: a native checkbox in the accent colour, its
+   label, and an (i) whose tooltip says what being in scope means. */
+.mountScopeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+.mountScopeLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-base);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.mountScopeLabel input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.mountScopeInfo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: help;
+}
+
+.mountScopeInfo:hover {
+  color: var(--text);
+  background: var(--hover-bg);
+}
+
+.mountScopeInfo:focus-visible {
+  color: var(--text);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}

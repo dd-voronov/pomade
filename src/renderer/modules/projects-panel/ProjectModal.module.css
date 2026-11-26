@@ -1,0 +1,131 @@
+.select {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* T-031 — explicit "project source" choice: two selectable cards (radios). The active card
+   is outlined with the accent so the current state is always legible (no segmented-control
+   ambiguity). Each card carries a title + one-line explanation of what it reveals. */
+.sourceCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sourceCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--panel-raised);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+
+.sourceCard:hover {
+  border-color: var(--accent);
+}
+
+.sourceCardActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.sourceCard input {
+  margin-top: 2px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.sourceCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sourceCardTitle {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+}
+
+.sourceCardHint {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+.templateBox {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--panel);
+}
+
+.templateBox .field:last-child {
+  margin-bottom: 0;
+}
+
+.legend {
+  padding: 0 var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-height: 160px;
+  overflow-y: auto;
+  padding: var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+}
+
+.agentRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-base);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.agentRow input {
+  accent-color: var(--accent);
+}
+
+.agentWarn {
+  margin-left: auto;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: var(--fs-xs);
+}
+
+.agentsHint {
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+}

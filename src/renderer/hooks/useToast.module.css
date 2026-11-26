@@ -1,0 +1,206 @@
+.host {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  z-index: var(--z-toast);
+}
+
+.toast {
+  max-width: 320px;
+  overflow-wrap: anywhere;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+}
+
+/* A toast with an action: message left, the action as an accent text button at its end. */
+.withAction {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  cursor: default;
+}
+
+.toastMessage,
+.toastAction {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.toastMessage {
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+}
+
+.toastAction {
+  flex: none;
+  color: var(--accent-active);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+
+.toastAction:hover {
+  text-decoration: underline;
+}
+
+.toastMessage:focus-visible,
+.toastAction:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* E-032 — a notice: the toast's card, wider, with a source line, a bold title, a clamped body and a
+   mute and a dismiss button (standard icon buttons, 16px glyphs) in its top-right corner. The whole
+   card (but those buttons) is the click target. */
+.notice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  padding: 0;
+  cursor: default;
+}
+
+.notice[data-actionable] .noticeMain {
+  cursor: pointer;
+}
+
+.noticeMain {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  /* Right: room for the mute and dismiss buttons (top-right corner) plus a gap. */
+  padding: var(--space-2) calc(2 * var(--icon-btn) + 2px + var(--space-1) + var(--space-2)) var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.noticeMain:focus-visible,
+.noticeIconBtn:focus-visible,
+.noticeMore:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.noticeHead {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+.noticeSource {
+  flex: none;
+  max-width: 60%;
+  overflow: hidden;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The project the notice belongs to, muted beside the app: "Hello · gamma". */
+.noticeProject {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noticeProject::before {
+  margin-right: var(--space-1);
+  content: '\00b7';
+}
+
+.noticeTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.noticeBody {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: pre-line;
+}
+
+.noticeActions {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  display: flex;
+  gap: 2px;
+}
+
+.noticeIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+
+.noticeIconBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+/* "4 more from Runner": the burst behind this toast; opens the Notices panel. */
+.noticeMore {
+  align-self: flex-start;
+  margin: 0 0 var(--space-2) var(--space-3);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--accent-active);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.noticeMore:hover {
+  text-decoration: underline;
+}

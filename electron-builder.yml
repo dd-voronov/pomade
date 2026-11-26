@@ -1,0 +1,25 @@
+appId: io.github.dd-voronov.pomade
+productName: Pomade
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**
+  - package.json
+# T-237 — the bundled apps (scripts/bundle-apps.mjs builds `bundled/`), outside the asar: an app's
+# backend, commands and keeper run from real files.
+extraResources:
+  - from: bundled
+    to: bundled-apps
+mac:
+  category: public.app-category.developer-tools
+  # T-007 — app icon (icns + master PNG live in build/, the electron-builder buildResources
+  # home).
+  icon: build/icon.icns
+  target:
+    - dmg
+    - zip
+  artifactName: ${productName}-${version}-${arch}.${ext}
+# Personal single-user app: unsigned local builds are fine for v1.
+electronLanguages:
+  - en

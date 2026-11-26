@@ -1,0 +1,847 @@
+.projectsPanel {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  height: 100%;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* T-125 — the scrolling middle of the expanded Projects panel (Workspace row → groups → end-drop
+   zone). Header and .footer live OUTSIDE it so Settings + version never leave the screen. */
+.scroll {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  /* T-138 — reserve the scrollbar gutter so toggling the vertical scrollbar never reflows the
+     Projects panel content horizontally. Matches the file tree and editor scroll areas. */
+  scrollbar-gutter: stable;
+}
+
+/* E-007 (T-030) — collapsed rail: a thin always-visible strip whose only job is to hold
+   the expand button. Width follows --sidebar-w (set to the rail width by the shell). */
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  height: 100%;
+  padding-top: var(--space-2);
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+}
+
+.railBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hit-target);
+  height: var(--hit-target);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+/* E-011 — red numeric attention counter (social-media style). Numeric only, capped "9+". */
+.counter {
+  flex: none;
+  min-width: 16px;
+  height: 16px;
+  margin-left: var(--space-1);
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: var(--danger);
+  color: var(--accent-contrast);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* On the collapsed rail the counter floats on the corner of the expand button. */
+.railBtn .counter {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  margin-left: 0;
+}
+
+.railBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+/* E-010 — the collapsed rail doubles as a project launcher: one icon button per project. */
+.railList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rail-gap);
+  margin-top: var(--space-2);
+  width: 100%;
+  /* Vertical only: once the list overflows, its scrollbar narrows the rail's content box, and an
+     auto x-axis would add a horizontal scrollbar under the launchers. */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* E-010 (round-3) — collapsed rail launchers. T-074: the launcher is only a HIT TARGET
+   (--rail-launcher = the systematic minimum); the glyph inside is the shared 16px .projectIcon,
+   exactly the size it has in an expanded row — no rail-specific scaling. */
+.railProject {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--rail-launcher);
+  height: var(--rail-launcher);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.railProject:hover {
+  background: var(--hover-bg);
+}
+
+/* E-010 (round-3) — the workspace launcher is bigger than project launchers (apex). */
+.railWorkspace {
+  width: var(--rail-workspace);
+  height: var(--rail-workspace);
+}
+
+.railWorkspaceIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--rail-workspace-icon);
+  height: var(--rail-workspace-icon);
+  overflow: hidden;
+}
+
+.railWorkspaceEmoji {
+  font-size: 30px; /* T-057: matches .workspaceIconEmoji (expanded Projects panel workspace icon) */
+  line-height: 1;
+}
+
+/* T-190 — active rail launcher: a 2px inset RING (box-shadow = no layout shift). Uncolored: a
+   near-white fill + neutral-gray ring, mirroring the expanded active row (the old accent chip is
+   gone). Colored launchers override below (chip kept, ring in the 2-tone-darker hue). */
+.railProjectActive {
+  background: var(--row-active-bg);
+  border-color: transparent;
+  box-shadow: inset 0 0 0 2px var(--row-active-border);
+}
+
+/* T-190 — colored rail launcher/marker: a full-background chip (SOFT; MEDIUM when highlighted),
+   hover darkening over the tint like the expanded row. --row-fill / --row-border-active are set
+   inline (projects-panel-parts.rowColorVars). */
+.railProject[data-color],
+.railGroupMarker[data-color] {
+  background: var(--row-fill);
+}
+.railProject[data-color]:hover,
+.railGroupMarker[data-color]:hover {
+  background: linear-gradient(0deg, var(--hover-bg), var(--hover-bg)), var(--row-fill);
+}
+
+/* Active colored launcher: keep the chip, ring in the 2-tone-darker hue. */
+.railProjectActive[data-color] {
+  background: var(--row-fill);
+  box-shadow: inset 0 0 0 2px var(--row-border-active);
+}
+.railProjectActive[data-color]:hover {
+  background: linear-gradient(0deg, var(--hover-bg), var(--hover-bg)), var(--row-fill);
+}
+
+.railProject .counter {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  margin-left: 0;
+}
+
+/* E-010 (round-4) — collapsed-rail group structure: a small section marker (the group's
+   icon) sits above its projects and, being a HEADER not a launcher, expands the Projects panel on
+   click. Thin separators divide the sections (groups + Ungrouped). */
+.railSeparator {
+  width: 60%;
+  height: 2px; /* T-057 round-6 final: 3px read too heavy — settled at 2px */
+  border-radius: 1px;
+  margin: var(--space-1) auto;
+  background: var(--border);
+  flex: none;
+}
+
+/* T-074 — the marker is a bare HIT TARGET wrapped around the shared .groupIcon: the glyph keeps
+   its expanded tier size (40/32/24/16 via --group-icon*), the button only guarantees the minimum
+   clickable area. No rail-specific tiers exist any more — one source of truth for both surfaces. */
+.railGroupMarker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--hit-target);
+  min-height: var(--hit-target);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex: none;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.railGroupMarker:hover {
+  background: var(--hover-bg);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.headerActions {
+  display: flex;
+  gap: 2px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.projectRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* E-010 (T-003) — drop indicators. A project row shows a before/after accent line; a group /
+   ungrouped tier shows a soft "drop into" fill while a project is dragged over it. */
+.dropBefore::before,
+.dropAfter::after {
+  content: '';
+  position: absolute;
+  left: var(--space-2);
+  right: var(--space-2);
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  z-index: var(--z-sidebar-drop-indicator);
+}
+
+.dropBefore::before {
+  top: -1px;
+}
+
+.dropAfter::after {
+  bottom: -1px;
+}
+
+.dropInto {
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  outline: 1px dashed var(--accent);
+}
+
+/* T-073 — "nest as the FIRST child": the same INTO fill, plus an accent line along the bottom
+   edge marking where the group's children begin (the band the pointer is in). */
+.dropIntoFirst {
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  outline: 1px dashed var(--accent);
+  box-shadow: inset 0 -3px 0 0 var(--accent);
+}
+
+/* T-073 — the GAP strip preceding a section: the space that used to be dead `.group` margin is
+   now the drop target for "place here, at this section's level", so every slot in the order is
+   reachable. Fixed height (it REPLACES the old margin — no layout shift when it lights up). */
+.gap {
+  height: var(--space-2);
+  margin: 0 var(--space-2);
+  flex: none;
+}
+
+.gapActive::after {
+  content: '';
+  display: block;
+  height: 2px;
+  margin-top: 3px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+
+/* T-104 — a tab dragged off the strip is hovering THIS project row = "drop here to move it into
+   this project". A strong, solid accent outline (distinct from the reorder DnD's dashed "drop
+   into" fill) marks the row as the active move target. Only ever set on a VALID target row (never
+   the current project). */
+.tabDropTarget {
+  background: var(--accent-soft);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--fs-base);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.item:hover {
+  background: var(--hover-bg);
+}
+
+/* T-190 — active project WITHOUT a color: the old accent-soft blue fill is replaced by a near-white
+   fill (lighter than the gray --panel) + a neutral-gray 2px inset border. The border is an inset
+   box-shadow so activation moving between rows never shifts layout (T-138 class). Text drops back to
+   --text (the accent-tinted --badge-fg went with the accent fill); the medium weight is kept.
+   Colored active rows override this below (they keep their tint + a 2-tone-darker border). */
+.active {
+  background: var(--row-active-bg);
+  color: var(--text);
+  font-weight: var(--fw-medium);
+  box-shadow: inset 0 0 0 2px var(--row-active-border);
+}
+
+/* E-010 (round-4) — "Workspace is the King": the pinned row is a container (composed with
+   .item so it inherits the row look/hover/active) holding two buttons — the icon (opens the
+   change-icon modal on LEFT-click) and the open-project button. A subtle divider under the
+   row + a bold label set the workspace apart from the groups below. */
+.workspaceItem {
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--border); /* T-057: 1px → 2px, slightly more visible King divider */
+}
+
+.workspaceItem .name {
+  font-weight: var(--fw-bold);
+}
+
+/* The icon is its own button so a LEFT-click opens the change-icon modal (the rest of the
+   row still opens the Workspace project). Bare — the row supplies the hover/active. */
+.workspaceIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  flex: none;
+}
+
+.workspaceIconBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* T-183 — focus/emphasis highlight: a highlighted project or group renders its name BOLD in the
+   expanded list. Applied to BOTH .name (projects) and .groupName (groups/sub-groups). The compound
+   selectors give this two-class specificity so it outranks .groupName's own single-class
+   font-weight (--fw-semibold, declared LATER in the file) regardless of source order, and the
+   row's inherited weight (.active is --fw-medium). No box-model change — .name/.groupName keep
+   flex:1 + min-width:0 + ellipsis, so bold never shifts the row layout; at most it truncates a
+   hair sooner, which is the intended emphasis. */
+.name.highlighted,
+.groupName.highlighted {
+  font-weight: var(--fw-bold);
+}
+
+/* T-196 — a highlighted GROUP name also turns full-text-color (projects already render at full
+   --text; .groupHeader sets --text-muted for the idle uppercase label, and .groupName has no
+   color of its own to override it). Set directly on the element so it wins over the inherited
+   muted color regardless of selector specificity elsewhere. */
+.groupName.highlighted {
+  color: var(--text);
+}
+
+.area {
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--badge-bg);
+  color: var(--badge-fg);
+  font-size: var(--fs-xs);
+  flex: none;
+}
+
+/* Row hover controls */
+.rowActions {
+  position: absolute;
+  right: var(--space-1);
+  display: none;
+  align-items: center;
+  gap: 0;
+  padding-left: var(--space-2);
+  /* The fade slab must MATCH the row's live background (round-6 kebab fix): the row
+     paints translucent/solid overlays over --panel, so the same overlay is composited
+     above an opaque panel fade via --row-actions-overlay (unset = plain panel). */
+  background:
+    linear-gradient(90deg, transparent, var(--row-actions-overlay, transparent) 24%),
+    linear-gradient(90deg, transparent, var(--panel) 24%);
+}
+
+.projectRow:hover .rowActions,
+.groupHeader:hover .rowActions {
+  display: flex;
+}
+
+/* Overlay = the row's state background. Active first, hover after (hover wins on the
+   item — .item:hover outranks .active — so it must win here too). Covers both layouts:
+   project rows (.rowActions is a SIBLING of .item) and the Workspace row (a CHILD). */
+/* T-190 — active UNCOLORED row: the fade slab matches the new near-white active fill. Colored
+   active rows are excluded (their slab fades into the tint, handled in the T-190 block below). */
+.projectRow:has(> .item.active:not([data-color])) .rowActions,
+.active:not([data-color]) > .rowActions {
+  --row-actions-overlay: var(--row-active-bg);
+}
+
+.projectRow:hover .rowActions,
+.item:hover > .rowActions,
+/* T-196 — these two repeat the :has()/:not() argument of the active-uncolored rule above with
+   :hover appended, so this pair OUT-SPECIFIES it (specificity carries through :has()'s argument
+   list the same way it does through :not()'s) instead of losing to it on source order alone —
+   before this, hovering an active uncolored row left the kebab/counter fade slab stuck on the
+   near-white --row-active-bg while the row itself painted --hover-bg, a visible pale patch. */
+.projectRow:has(> .item.active:not([data-color])):hover .rowActions,
+.active:not([data-color]):hover > .rowActions {
+  --row-actions-overlay: var(--hover-bg);
+}
+
+/* Row-wide hover: keep the item highlighted while the pointer is on the kebab/actions
+   (the actions strip sits OUTSIDE the .item button on project rows, so .item:hover
+   alone would drop the highlight mid-row and expose a fade/row mismatch). */
+.projectRow:hover .item {
+  background: var(--hover-bg);
+}
+
+/* ── T-190 — Projects panel row colors ───────────────────────────────────────────────
+   A colored row paints --row-fill: the SOFT tint at rest, or the MEDIUM tint when highlighted
+   (the tone is computed in JS from the color+highlight pair — projects-panel-parts.rowColorVars — so the
+   T-183 highlight auto-flips soft⇄medium with no re-pick). The painted element is a project .item
+   or a group .groupHeader; the tone vars (--row-fill, --row-border-active) live on the row
+   container (.projectRow li / .groupHeader) so the sibling .rowActions inherits them. */
+.item[data-color],
+.groupHeader[data-color] {
+  background: var(--row-fill);
+}
+
+/* A colored PROJECT row darkens on hover like an uncolored one, but keeps its hue — the
+   translucent --hover-bg is layered OVER the tint instead of replacing it (both the direct hover
+   and the row-wide .projectRow:hover, whose 0-2-0 rule above would otherwise wipe the tint). Group
+   headers have no hover fill in their uncolored form either, so they stay flat. */
+.item[data-color]:hover,
+.projectRow:hover .item[data-color] {
+  background: linear-gradient(0deg, var(--hover-bg), var(--hover-bg)), var(--row-fill);
+}
+
+/* Active COLORED project (Option B): the fill STAYS; a 2px inset border in the 2-tone-darker hue
+   (--row-border-active = medium for a soft row, strong for a medium/highlighted one) marks active.
+   Overrides .active's near-white fill + neutral ring + text recolor; box-shadow = zero layout shift.
+   Active + highlighted + colored therefore = MEDIUM fill + STRONG border + bold name. */
+.item[data-color].active {
+  background: var(--row-fill);
+  color: var(--text);
+  box-shadow: inset 0 0 0 2px var(--row-border-active);
+}
+.item[data-color].active:hover,
+.projectRow:hover .item[data-color].active {
+  background: linear-gradient(0deg, var(--hover-bg), var(--hover-bg)), var(--row-fill);
+}
+
+/* Colored rows: the kebab fade slab fades into the TINT (base layer --row-fill instead of --panel),
+   so it matches the row at rest, when active, and on hover (the --hover-bg overlay rule above then
+   layers on top exactly as it does over the row). */
+.projectRow:has(> .item[data-color]) .rowActions,
+.groupHeader[data-color] > .rowActions {
+  background:
+    linear-gradient(90deg, transparent, var(--row-actions-overlay, transparent) 24%),
+    linear-gradient(90deg, transparent, var(--row-fill) 24%);
+}
+
+/* T-190 — "Change color" submenu swatches (mirror TabStrip's ctxSwatch): a 14px ringed circle;
+   .swatchNone is the empty "None" chip. */
+.swatch,
+.swatchNone {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  flex: none;
+}
+.swatchNone {
+  background: var(--panel);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.iconBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.iconBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Groups. T-073: the inter-section spacing is no longer a margin — it is the `.gap` drop strip
+   rendered as the section's first child (same 8px, but hittable). */
+.group {
+  position: relative;
+}
+
+.groupHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4) var(--space-1) var(--space-3);
+  color: var(--text-muted);
+  /* T-145 — the whole row is a click target (toggles collapse), so it reads as clickable. */
+  cursor: pointer;
+}
+
+/* T-196 — a 2px seam between a header and its first child, matching the `.list` inter-row rhythm
+   (`gap: 1px`/2px feel) that project rows already have between each other; both T-190 fills
+   (header + row) otherwise meet with a 0px seam. MARGIN, not padding: padding would inflate the
+   header's own box height, which T-073's `groupHeaderZone` reads straight off the header's
+   `getBoundingClientRect()` to size the top/into/into-first bands — a margin sits outside that
+   rect entirely, so the band geometry is untouched. Scoped with `:has()` to only the headers that
+   actually have a next sibling in THIS section (an expanded list, "No projects", or a nested
+   sub-group) — a collapsed header has none of those, so it stays flush against the next section's
+   `.gap` strip instead of doubling it. Shared by group headers and the Ungrouped header alike. */
+.groupHeader:has(+ .list),
+.groupHeader:has(+ .groupEmpty),
+.groupHeader:has(+ .group) {
+  margin-bottom: 2px;
+}
+
+.groupName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* E-010 (T-035; round-3 bumped to 40px; round-4 chip background removed) — group icon.
+   Transparent container so it inherits the ROW's own background (idle / hover / active),
+   matching the clean project icons; rounded clipping is kept for image icons. */
+.groupIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--group-icon);
+  height: var(--group-icon);
+  border-radius: var(--radius-md);
+  background: transparent;
+  flex: none;
+  overflow: hidden;
+}
+
+/* E-015 — nested-group icon TIERS: 40 → 32 → 24 → 16px, one step per depth (matching the
+   MAX_GROUP_DEPTH of 4). The emoji/library glyph font-size shrinks in step (library glyphs are
+   sized to 1em, so the wrapper font-size governs both emoji and SVG marks). Depth 1 keeps the
+   existing --group-icon / 26px look. */
+.groupIcon[data-depth='2'] {
+  width: var(--group-icon-2);
+  height: var(--group-icon-2);
+}
+.groupIcon[data-depth='3'] {
+  width: var(--group-icon-3);
+  height: var(--group-icon-3);
+}
+.groupIcon[data-depth='4'] {
+  width: var(--group-icon-4);
+  height: var(--group-icon-4);
+}
+
+.groupIconEmoji {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.groupIcon[data-depth='2'] .groupIconEmoji {
+  font-size: 20px;
+}
+.groupIcon[data-depth='3'] .groupIconEmoji {
+  font-size: 15px;
+}
+.groupIcon[data-depth='4'] .groupIconEmoji {
+  font-size: 11px;
+}
+
+.groupIconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* T-140 — the collapse toggle lives BEHIND the group icon: a bare button sized to the icon that
+   cross-fades the icon to a chevron on hover. No always-visible control on the row. The button is
+   only a hit target — it carries no chrome of its own, inheriting the header row's background. */
+.groupCollapseToggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  flex: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+
+/* The icon fades out (and the chevron in) only while the toggle is hovered — reusing the file
+   tree's chevron rotation vocabulary (▸ collapsed → ▾ open) and the shared motion tokens. */
+.groupCollapseToggle .groupIcon {
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.groupCollapseChevron {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+.groupCollapseChevronOpen {
+  transform: rotate(90deg);
+}
+
+.groupCollapseToggle:hover .groupIcon,
+.groupCollapseToggle:focus-visible .groupIcon {
+  opacity: 0;
+}
+
+.groupCollapseToggle:hover .groupCollapseChevron,
+.groupCollapseToggle:focus-visible .groupCollapseChevron {
+  opacity: 1;
+}
+
+/* E-010 (T-035) — project icon: ~16px, crisp (emoji as text, image object-fit cover). */
+.projectIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--project-icon);
+  height: var(--project-icon);
+  font-size: 14px;
+  line-height: 1;
+  flex: none;
+}
+
+.projectIconImg {
+  width: var(--project-icon);
+  height: var(--project-icon);
+  object-fit: cover;
+  border-radius: 3px;
+  flex: none;
+}
+
+/* E-010 (round-3; round-4 chip background removed) — workspace identity: the apex icon
+   (48px) in the pinned expanded Workspace row. Transparent container so it inherits the
+   row's own background (idle / hover / active); rounded clipping is kept for image icons.
+   Renders bigger than a group icon so the hierarchy reads Workspace > Groups > projects. */
+.workspaceIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--workspace-icon);
+  height: var(--workspace-icon);
+  border-radius: var(--radius-md);
+  background: transparent;
+  flex: none;
+  overflow: hidden;
+}
+
+.workspaceIconEmoji {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.workspaceIconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.groupEmpty {
+  padding: var(--space-1) var(--space-4) var(--space-2) var(--space-6);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+/* E-010 (round-3) — the Projects panel body below the last group is a group-drag drop zone meaning
+   "reorder to the end". It grows to fill the free space so there is always a target beneath
+   the last group (fixing the "group drag does nothing in the empty area" feel). */
+.belowAll {
+  flex: 1 1 auto;
+  min-height: var(--space-6);
+  margin: var(--space-1) var(--space-2) 0;
+  border-radius: var(--radius-sm);
+}
+
+.dropEnd {
+  background: var(--accent-soft);
+  outline: 1px dashed var(--accent);
+}
+
+/* ── Footer (unified Settings entry) — pinned to the bottom of the Projects panel. Labeled, not a
+   bare icon: discoverability beats minimalism (the 40-minute gear hunt, E-006). ── */
+.footer {
+  flex: none;
+  margin-top: auto; /* still holds the footer down if .scroll ever stops growing */
+  display: flex;
+  padding: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+.settingsBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--hit-target);
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+/* No box highlight on hover (the Owner, 2026-08-29) — the full-width gray fill read as noise;
+   the text-color shift alone is the hover affordance. */
+.settingsBtn:hover {
+  color: var(--text);
+}
+
+/* T-082 — app version beside Settings; quiet, never competes with the button. */
+.version {
+  align-self: center;
+  margin-left: auto;
+  padding-right: var(--space-2);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+/* Collapsed-rail counterpart of .footer: keeps the gear visible when the Projects panel is a rail. */
+.railFooter {
+  flex: none;
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+}
+
+.settingsGear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  font-size: var(--control-icon);
+  line-height: 1;
+  flex: none;
+}
+
+/* T-311 — the row (or rail launcher) Pomade just switched to: an accent ring and tint pulse twice,
+   then the row returns to its own look. Only the start and end of each pulse are keyed, so a colored
+   or active row animates from and back to its own fill. Length = FLASH_MS in useRevealActiveProject. */
+.revealFlash {
+  animation: revealFlash 1.2s var(--ease);
+}
+
+@keyframes revealFlash {
+  15%,
+  35%,
+  60%,
+  80% {
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+  47% {
+    box-shadow: inset 0 0 0 2px transparent;
+  }
+}

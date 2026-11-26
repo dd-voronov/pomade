@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light dark;
+  --fg: #1f2328;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #ffffff;
+  --err: #b42318;
+  --ok: #1a7f37;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e6e6e6;
+    --muted: #9aa0a6;
+    --line: #2f3338;
+    --bg: #1b1d20;
+    --err: #ff8a80;
+    --ok: #7ee2a8;
+  }
+}
+body {
+  margin: 0;
+  padding: 20px 24px;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+#status {
+  font-size: 12px;
+  color: var(--muted);
+}
+#status[data-state='connected'] {
+  color: var(--ok);
+}
+#status[data-state='standalone'],
+#status[data-state='rejected'] {
+  color: var(--err);
+}
+.muted {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+table {
+  margin-top: 16px;
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 6px 10px 6px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+th {
+  font-weight: 600;
+  color: var(--muted);
+}
+td.error {
+  color: var(--err);
+}
+h2 {
+  margin: 20px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.error {
+  color: var(--err);
+}
+td.actions {
+  white-space: nowrap;
+  text-align: right;
+}
+td.actions button {
+  margin-left: 6px;
+}

@@ -1,0 +1,512 @@
+/* Pomade E-013 — frontmatter properties panel. Mirrors the blessed wireframe
+   using tokens.css. Sits above the
+   rendered body inside the same scroll. */
+
+.panel {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: 100%;
+  padding: 6px 14px 2px;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+}
+.header:hover {
+  color: var(--text-muted);
+}
+.panel[data-expanded='false'] .header {
+  padding-bottom: 6px;
+}
+
+.tri {
+  font-size: 9px;
+  width: 10px;
+}
+
+.headerLabel {
+  color: inherit;
+}
+
+.headerCount {
+  color: inherit;
+}
+
+.rawMarker {
+  margin-left: var(--space-2);
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--warning);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-sm);
+}
+
+.rows {
+  padding: 2px 0 10px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 148px 1fr auto;
+  align-items: baseline;
+  padding: 3px 14px;
+}
+.row:hover {
+  background: var(--hover-bg);
+}
+
+.k {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.glyph {
+  width: 14px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 10px;
+  flex: none;
+}
+
+.keyName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.v {
+  font-size: var(--fs-base);
+  min-height: 20px;
+  color: var(--text);
+}
+
+/* ── scalar ── */
+.scalarText,
+.nullText {
+  display: inline-block;
+  min-width: 40px;
+  border-radius: var(--radius-sm);
+  padding: 0 2px;
+  cursor: text;
+}
+.scalarText:hover,
+.nullText:hover {
+  background: var(--hover-bg);
+}
+.nullText {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.editWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.scalarInput {
+  min-width: 180px;
+  height: 22px;
+  padding: 0 var(--space-2);
+  font: inherit;
+  font-size: var(--fs-base);
+  color: var(--text);
+  background: var(--panel-raised);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.dateHint {
+  font-size: var(--fs-xs);
+  color: var(--warning);
+}
+
+/* ── list chips ── */
+.chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+.pillTag {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--badge-fg);
+}
+
+/* T-053 round-3 (3c) — a chip's text is its own click-to-edit zone (distinct from the remove X). */
+.chipText {
+  cursor: text;
+  border-radius: var(--radius-sm);
+  padding: 0 1px;
+}
+.chipText:hover {
+  background: var(--hover-bg);
+}
+
+/* T-053 round-3 (3c) — chip-sized inline editor.
+   E-013 round-4 — width auto-grows with content (inline `width: <n>ch`), capped at the row via
+   max-width so a long value (e.g. a folder path) expands to the full row instead of a tiny box;
+   short values don't jump (width tracks content from a small minimum). */
+.chipEditInput {
+  min-width: 40px;
+  max-width: 100%;
+  height: 18px;
+  padding: 0 var(--space-1);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  background: var(--panel-raised);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.chipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* T-053 round-3 (3d) — a fixed trailing hit zone that never overlaps the text's click-to-edit
+     zone (they are separate flex children). The margin keeps a small gap so a click on the last
+     glyph of a SHORT chip can't spill onto the X. */
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-left: 2px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+/* Reveal the remove affordance only on chip hover — keeps the panel calm at rest (Obsidian).
+   The hit area (opacity, not width, animates) avoids layout shift and stays clickable. */
+.pill:hover .chipRemove {
+  opacity: 0.6;
+}
+.chipRemove:hover {
+  opacity: 1;
+  background: var(--hover-bg);
+}
+
+.chipInput {
+  min-width: 48px;
+  width: 6ch;
+  height: 20px;
+  padding: 0 var(--space-1);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+.chipInput:focus {
+  background: var(--panel-raised);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* ── boolean ── */
+.checkbox {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ── complex read-only ── */
+.yaml {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 9px;
+  white-space: pre;
+  overflow-x: auto;
+  max-width: 100%;
+  vertical-align: top;
+}
+.rawOnly {
+  margin-left: 8px;
+  padding: 0 5px;
+  font-size: 10px;
+  color: var(--warning);
+  background: transparent;
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  vertical-align: 1px;
+  cursor: pointer;
+}
+.rawOnly:hover {
+  background: var(--hover-bg);
+}
+
+/* ── E-014: complex-value inline raw-YAML editor ── */
+.complexEditWrap {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+}
+.complexTextarea {
+  width: 100%;
+  min-height: 64px;
+  padding: 6px 9px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--panel-raised);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  resize: vertical;
+  white-space: pre;
+}
+.complexError {
+  font-size: var(--fs-xs);
+  color: var(--danger);
+}
+.complexActions {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+/* ── E-014: autocomplete suggestion dropdown (keys + list values) ── */
+.suggestWrap {
+  position: relative;
+  display: inline-flex;
+}
+.suggest {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: var(--z-suggest);
+  margin-top: 2px;
+  min-width: 140px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--panel-raised);
+  box-shadow: var(--shadow-2);
+}
+.suggestItem {
+  display: block;
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+.suggestItem:hover,
+.suggestActive {
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+
+/* ── T-065: embedded date picker (calendar icon inside the text box) ──
+   One box: the scalar input plus a calendar icon at the right edge, mirroring the go-to-path
+   paste icon (T-058) — icon inside the box, a thin vertical separator, input padding reserving
+   the icon zone. The native <input type="date"> is hidden and used only as the picker trigger. */
+.inputBox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.inputBoxDate .scalarInput {
+  /* Reserve the icon zone so text never runs under the calendar glyph. */
+  padding-right: 30px;
+}
+.dateIconBtn {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  padding: 0;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.dateIconBtn:hover {
+  color: var(--text);
+  background: var(--hover-bg);
+}
+.dateIconBtn:focus-visible {
+  outline: none;
+  color: var(--text);
+}
+/* Hidden native picker trigger — kept rendered (not display:none) so showPicker() works. */
+.dateNative {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  color-scheme: light dark;
+}
+
+/* ── E-014: drag-to-reorder rows ── */
+.row[draggable='true'] .glyph {
+  cursor: grab;
+}
+.dragging {
+  opacity: 0.5;
+}
+.dropBefore {
+  box-shadow: inset 0 2px 0 0 var(--accent);
+}
+.dropAfter {
+  box-shadow: inset 0 -2px 0 0 var(--accent);
+}
+
+/* ── remove row ── */
+.removeBtn {
+  align-self: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+}
+.row:hover .removeBtn {
+  opacity: 1;
+}
+.removeBtn:hover {
+  background: var(--hover-bg);
+  color: var(--danger);
+}
+
+/* ── add property ── */
+.addGhost {
+  display: block;
+  margin: 2px 14px 0;
+  padding: 1px 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+  text-align: left;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.addGhost:hover {
+  background: var(--hover-bg);
+  color: var(--text-muted);
+}
+
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 3px 14px;
+}
+.addKeyInput,
+.addValInput {
+  height: 22px;
+  padding: 0 var(--space-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  background: var(--panel-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+.addKeyInput {
+  width: 130px;
+}
+.addValInput {
+  flex: 1;
+  max-width: 260px;
+}
+.addKeyInput:focus,
+.addValInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.addConfirm {
+  height: 22px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+.addConfirm:hover {
+  background: var(--accent-hover);
+}

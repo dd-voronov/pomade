@@ -1,0 +1,10 @@
+{
+  "id": "e028-always",
+  "name": "E-028 always-on",
+  "version": "0.1.0",
+  "hostApi": 0,
+  "capabilities": [],
+  "strip": [{ "id": "main", "title": "E-028 always-on", "action": "panel" }],
+  "api": ["ping"],
+  "backend": { "entry": "backend/main.mjs", "mode": "always-on" }
+}

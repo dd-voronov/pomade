@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-electron/
+out/
+release/
+/bundled/
+.DS_Store
+*.log
+test-results/
+playwright-report/
+*.tsbuildinfo
+.claude/worktrees/
+docs/auxiliary/quick-note.md
+e2e/artifacts/

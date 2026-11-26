@@ -1,0 +1,288 @@
+/* E-032 — the Notices panel. The Files / Git panels' surface and header metrics (row content starts
+   at 16px, level with the header title); one row per notice: source and time on a small line, the
+   title (up to two lines), then up to three lines of body. */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: var(--filetree-w);
+  min-width: var(--filetree-w);
+  height: 100%;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+}
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.headerActions {
+  display: flex;
+  gap: 2px;
+}
+
+.headerBtn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.headerBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.headerBtn:focus-visible,
+.row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  padding-bottom: var(--space-4);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.empty {
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+}
+
+.list {
+  margin: 0;
+  padding: 0 var(--space-2);
+  list-style: none;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: default;
+}
+
+.row[data-actionable] {
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--hover-bg);
+}
+
+/* Selected (Cmd/Shift-click): the file tree's selection wash, kept while hovered. */
+.row[data-selected],
+.row[data-selected]:hover {
+  background: var(--selection);
+}
+
+/* One notice in the list: its row, and the × that deletes it — shown while the pointer is on the
+   row (or the × has keyboard focus), in place of the time, centred on the source line. */
+.item {
+  position: relative;
+}
+
+.rowDelete {
+  position: absolute;
+  top: calc(var(--space-2) - 5px);
+  right: calc(var(--space-2) - 6px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  opacity: 0;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.item:hover .rowDelete,
+.rowDelete:focus-visible {
+  opacity: 1;
+}
+
+.item:hover .time,
+.item:has(.rowDelete:focus-visible) .time {
+  visibility: hidden;
+}
+
+.rowDelete:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.rowDelete:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* "2 selected · Delete": above the list while notices are selected. */
+.selectionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--icon-btn);
+  margin: 0 var(--space-2) var(--space-1) var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+/* Unread: a small accent dot in the list's left gutter, so the text stays level with the header. */
+.row[data-unread]::before {
+  position: absolute;
+  top: calc(var(--space-2) + 5px);
+  left: -6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-active);
+  content: '';
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+.source {
+  overflow: hidden;
+  font-weight: var(--fw-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A row's source line: the app, then the project the notice belongs to, muted ("Hello · gamma"). */
+.who {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.who .source {
+  flex: none;
+  max-width: 60%;
+}
+
+.project {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project::before {
+  margin-right: var(--space-1);
+  content: '\00b7';
+}
+
+.time {
+  flex: none;
+}
+
+.title {
+  display: -webkit-box;
+  overflow: hidden;
+  font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.body3 {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  white-space: pre-line;
+}
+
+/* Muted sources: a small section under the list, each with Unmute. */
+.muted {
+  margin: var(--space-3) var(--space-4) 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+
+.mutedTitle {
+  margin-bottom: var(--space-1);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mutedRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--icon-btn);
+  color: var(--text-muted);
+}
+
+.smallBtn {
+  flex: none;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+
+.smallBtn:hover {
+  border-color: var(--border-strong);
+}
+
+.smallBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}

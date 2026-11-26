@@ -1,0 +1,25 @@
+/* Pomade — the shared anchored-popover shell (T-169). Scrim + panel mechanics common to every
+   click-anchored popover (symlink target, unbound-session recovery, color picker, go-to-path
+   suggestion): a full-viewport transparent scrim that closes the popover on click, and a
+   fixed-positioned panel (position/left/top/width set inline by the caller off a DOMRect anchor).
+   Per-popover chrome (padding, overflow, font-size, head/body/actions layout) stays in the
+   caller's own CSS module — this file owns only what was byte-identical across all four. */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-popover);
+}
+
+.panel {
+  position: fixed;
+  z-index: calc(var(--z-popover) + 1);
+  background: var(--panel-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+.panel:focus {
+  outline: none;
+}

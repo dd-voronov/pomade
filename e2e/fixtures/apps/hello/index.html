@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hello</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Hello</h1>
+      <span id="status" data-state="connecting">Connecting…</span>
+      <button id="copy" type="button">Copy</button>
+      <button id="open-overlay" type="button" hidden>Quick add…</button>
+    </header>
+    <p id="surface" class="muted"></p>
+    <p id="project" class="muted"></p>
+    <p id="folder" class="muted"></p>
+    <table id="rows">
+      <thead>
+        <tr><th>Path</th><th>ID</th><th>Title</th><th>Status</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <form id="quick-add" hidden>
+      <label for="quick-add-text">Quick add</label>
+      <input id="quick-add-text" autocomplete="off" placeholder="A task — Enter to save, Esc to cancel" />
+      <button id="quick-add-copy" type="button">Copy</button>
+      <p class="muted">Saved to the app state, shared with the tab and the panel.</p>
+    </form>
+    <script src="app.js"></script>
+  </body>
+</html>

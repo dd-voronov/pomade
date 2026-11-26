@@ -1,0 +1,53 @@
+/* E-027 — the app overlay: a small app frame over the active tab. The scrim and the card chrome
+ * are the pane-scoped dialog shell (components/dialog.module.css); this places the card, drops its
+ * padding, and draws the drag handle above the frame. The card is fixed in the window (left, top,
+ * width and height come from the component, in the window's coordinates), so it leaves the pane
+ * area's clip and, inside the scrim's stacking context, stacks above the Projects panel, the side
+ * panel and the strip. */
+
+.card {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+}
+
+.handle {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.handle:active {
+  cursor: grabbing;
+}
+
+.grip {
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-strong);
+}
+.handle:hover .grip,
+.handle:active .grip {
+  background: var(--text-faint);
+}
+
+/* The frame's box takes what the handle leaves; the iframe fills it exactly. */
+.frameBox {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.frameBoxDragging {
+  pointer-events: none;
+}

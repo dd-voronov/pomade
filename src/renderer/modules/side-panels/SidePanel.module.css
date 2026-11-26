@@ -1,0 +1,217 @@
+/* E-029 — the icon strip and the side panel beside it. `--strip-w` and `--filetree-w` (the panel's
+   width) are set on the layout body by App. */
+
+/* ── the strip ── */
+
+.strip {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: var(--strip-w);
+  min-width: var(--strip-w);
+  height: 100%;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+}
+
+/* Built for many icons: the list scrolls (no visible bar) when it outgrows the window. */
+.icons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+  gap: var(--rail-gap);
+  padding: var(--space-2) 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.icons::-webkit-scrollbar {
+  display: none;
+}
+
+.stripFoot {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+}
+
+.stripBtn {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--strip-btn);
+  height: var(--strip-btn);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.stripBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.stripBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.stripBtn[data-active-panel] {
+  background: var(--active-bg);
+  color: var(--text);
+}
+
+/* The selected panel's marker: a short accent bar on the strip's left edge. */
+.stripBtn[data-active-panel]::before {
+  content: '';
+  position: absolute;
+  left: calc((var(--strip-btn) - var(--strip-w)) / 2);
+  top: 25%;
+  width: 2px;
+  height: 50%;
+  border-radius: 0 1px 1px 0;
+  background: var(--accent);
+}
+
+.stripBtn svg,
+.stripBtn [data-app-icon] {
+  width: var(--strip-icon);
+  height: var(--strip-icon);
+}
+
+/* Count badge on the icon's top-right corner; red when urgent. Ringed in the strip's colour so
+   it reads cleanly over the icon. */
+.badge {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px var(--panel);
+  background: var(--accent-active);
+  color: var(--accent-contrast);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Quiet: counted, not calling (unread notices of muted apps only) — grey. */
+.badge[data-quiet] {
+  background: var(--text-muted);
+  color: var(--accent-contrast);
+}
+
+.badge[data-urgent] {
+  background: var(--danger);
+  color: var(--accent-contrast);
+}
+
+/* E-028 — the app's backend is down (crashed and restarting, or stopped): a small amber dot on
+   the icon's bottom-right corner, ringed like the badge; the tooltip says why. */
+.backendDot {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--panel);
+  background: var(--warning);
+  pointer-events: none;
+}
+
+/* ── the panel slot ── */
+
+.panels {
+  display: flex;
+  flex: none;
+  width: var(--filetree-w);
+  min-width: var(--filetree-w);
+  height: 100%;
+  min-height: 0;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.panels[hidden],
+.slot[hidden] {
+  display: none;
+}
+
+/* An app panel's header — the same type and spacing as the Files header. */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.headerTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.headerBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+/* The app frame fills the rest of the panel; `position: relative` anchors the frame and the
+   "App unavailable" card the same way a tab's pane does. */
+.frameWrap {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.appSlot {
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+}

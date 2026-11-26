@@ -1,0 +1,145 @@
+/* Pomade — symlink target popover (E-012 final). Built to the blessed wireframes,
+   all colors/sizes from tokens.css.
+   Scrim + panel shell is the shared Popover primitive (components/Popover.tsx, T-169); .pop here
+   is only this popover's own chrome layered on top of it. */
+
+.pop {
+  overflow: hidden;
+  font-size: var(--fs-base);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.headGlyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: var(--text-faint);
+}
+
+.resolving {
+  padding: 0 var(--space-3) var(--space-3);
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+}
+
+.path {
+  padding: 0 var(--space-3) var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  word-break: break-all;
+}
+
+.dir {
+  color: var(--text-muted);
+}
+
+.note {
+  margin: 0 var(--space-3) var(--space-2);
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-soft);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* Broken-link variant: a danger tint + danger text (color-mix keeps it themeable off --danger). */
+.noteErr {
+  background: color-mix(in srgb, var(--danger) 7%, var(--panel-raised));
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+  color: var(--danger);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.btn {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.btn:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+}
+
+.btnPrimary {
+  border-color: var(--accent);
+  color: var(--badge-fg);
+  background: var(--accent-soft);
+}
+
+.btnPrimary:hover {
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+
+/* "Open in project…" secondary list — replaces the action row when a target lives in
+   several projects (or in a project other than the active one). */
+.projectList {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1) var(--space-2) var(--space-2);
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.projectHead {
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.projectItem {
+  padding: var(--space-2) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.projectItem:hover {
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}

@@ -1,0 +1,61 @@
+/* E-036 — the Projects panel's "● 5 ↑2". Sized to the attention counter's 16px line so the two sit on one
+   baseline; the badge comes first, the red counter (E-011) stays the row's last element. */
+
+.badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 16px;
+  margin-left: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+}
+
+/* A project row's badge without an attention counter after it keeps the counter's slot empty (the
+   row's --space-2 gap + the counter's --space-1 margin + its 16px): badges line up across rows
+   whether or not a counter shows, and the row's hover kebab (with its fade) lands in that slot
+   instead of over the counts. The Workspace row has no kebab and keeps its full width. */
+.counterSlot:last-child {
+  margin-right: calc(var(--space-2) + var(--space-1) + 16px);
+}
+
+.part {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--git-modified);
+}
+
+.arrow {
+  margin-right: -2px;
+  font-weight: var(--fw-semibold);
+}
+
+/* Collapsed rail: a corner dot on the launcher (the attention counter owns the top-right corner). */
+.railDot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--panel);
+}
+
+.railDotUncommitted {
+  background: var(--git-modified);
+}
+
+.railDotUnpushed {
+  background: var(--git-renamed);
+}

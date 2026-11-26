@@ -1,0 +1,137 @@
+/* Pomade T-158 — the single context-menu shell. Every renderer-built menu (tab / strip / Projects panel
+   row + workspace / file tree / editor / CSV header / terminal / tab-strip bulk + add) renders
+   through ContextMenu.tsx and shares these styles; the six per-module menu CSS copies are gone. */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-menu) - 1);
+}
+
+.menu {
+  position: fixed;
+  z-index: var(--z-menu);
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  /* A tall menu near a short window is clamped by the component; this is the last-resort guard
+     for a window shorter than the menu itself. */
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--panel-raised);
+  box-shadow: var(--shadow-2);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+.menuItem:hover:not(:disabled):not([aria-disabled='true']) {
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+.menuItem[aria-checked='true'] {
+  font-weight: var(--fw-semibold);
+}
+
+/* Disabled — native (inert) and aria-only (hoverable, so a design-system tooltip still fires):
+   both dim to faint and drop the hover affordance. */
+.menuItem:disabled,
+.menuItem[aria-disabled='true'] {
+  color: var(--text-faint);
+  cursor: default;
+}
+.menuItem[aria-disabled='true']:hover {
+  background: transparent;
+  color: var(--text-faint);
+}
+
+/* Destructive item (Delete): red text + red icon (glyph inherits currentColor). */
+.menuItemDanger {
+  color: var(--danger);
+}
+.menuItemDanger:hover:not(:disabled):not([aria-disabled='true']) {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* Leading glyph slot (kebab ↑ ↓ ✎ / trash, color swatch, …). Fixed box, inherits item color. */
+.glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  flex: none;
+}
+
+/* Trailing slot (submenu chevron / status badge): pushed flush right. */
+.trailing {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+}
+.chevron {
+  color: var(--text-faint);
+  font-size: var(--fs-base);
+}
+
+.sep {
+  height: 1px;
+  margin: var(--space-1) var(--space-2);
+  background: var(--border);
+}
+
+/* Non-interactive label row ("N items selected", "N files named x"): quiet, no hover. */
+.header {
+  padding: var(--space-1) var(--space-3) var(--space-2);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+
+/* Empty-state line inside a submenu (no agents / no suggestions). */
+.empty {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+}
+
+/* Submenu flyout: positioned `fixed` to the VIEWPORT by useClampedSubmenu (inline left/top). It
+   must NOT be absolute-in-flow: the parent .menu sets overflow-y:auto, which per the CSS spec
+   forces overflow-x:auto too, so an absolute flyout would be CLIPPED inside the menu's scroll box
+   (and grow its scrollWidth into a spurious horizontal scrollbar) instead of flying out beside it.
+   Fixed escapes every ancestor's overflow. The hook flips it left and shifts it up at viewport
+   edges. */
+.subWrap {
+  position: relative;
+  display: flex;
+}
+.submenu {
+  position: fixed;
+  z-index: var(--z-menu);
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--panel-raised);
+  box-shadow: var(--shadow-2);
+}

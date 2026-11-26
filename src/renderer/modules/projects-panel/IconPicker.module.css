@@ -1,0 +1,245 @@
+/* E-010 (T-035) — icon picker: emoji grid + image upload, with a live preview. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  flex: none;
+}
+
+.previewEmoji {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.previewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.previewDefault {
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+/* E-017 — library icon in the preview: sized by font-size (LibraryGlyph is 1em). */
+.previewLib {
+  font-size: 26px;
+  color: var(--text);
+}
+
+.clear {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.clear:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.search {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+}
+
+.search:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tab {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.tabActive {
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+  font-weight: var(--fw-medium);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  /* E-010 round-3 — larger curated set (~480): the grid scrolls within a fixed height so a
+     big category never blows out the modal. */
+  max-height: 184px;
+  overflow-y: auto;
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+}
+
+.emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.emoji:hover {
+  background: var(--hover-bg);
+}
+
+.emojiActive {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.noResults {
+  grid-column: 1 / -1;
+  padding: var(--space-2);
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+}
+
+/* E-017 — three-mode switcher (Icons | Emoji | Image). Tab-like buttons; the active one
+   shows the CURRENT source. Reuses the emoji-tab visual language for consistency. */
+.modes {
+  display: flex;
+  gap: var(--space-1);
+  padding: 2px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.modeBtn {
+  flex: 1;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.modeBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.modeBtnActive,
+.modeBtnActive:hover {
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+  font-weight: var(--fw-medium);
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* E-017 — library (Icons mode): labeled sections, each a grid of monochrome glyphs. */
+.libSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.libSectionLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.libGrid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+}
+
+.libCell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.libCell:hover {
+  background: var(--hover-bg);
+}
+
+.libCellActive {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.libCellGlyph {
+  font-size: 20px;
+}

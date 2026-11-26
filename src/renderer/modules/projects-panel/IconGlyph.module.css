@@ -1,0 +1,9 @@
+/* E-017 — a library icon renders at 1em so the host container's font-size sets its tier
+   (48/40/32/16 incl. the collapsed rail). currentColor tint follows the app's tokens. */
+.svg {
+  width: 1em;
+  height: 1em;
+  display: block;
+  color: currentColor;
+  flex: none;
+}

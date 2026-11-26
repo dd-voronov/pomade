@@ -1,0 +1,44 @@
+{
+  "id": "e028-test",
+  "name": "E-028 test app",
+  "version": "0.1.0",
+  "hostApi": 0,
+  "capabilities": [
+    "project.read",
+    "files.read",
+    "git.read"
+  ],
+  "strip": [
+    {
+      "id": "main",
+      "title": "E-028 test",
+      "action": "panel"
+    }
+  ],
+  "backend": {
+    "entry": "backend/main.mjs",
+    "mode": "with-pomade"
+  },
+  "api": [
+    "echo",
+    "slow",
+    "fail"
+  ],
+  "commands": [
+    {
+      "name": "e028-test",
+      "entry": "cli/main.mjs",
+      "title": "Ask the test app"
+    }
+  ],
+  "outsideWorkspace": [
+    "~/.e028-test/"
+  ],
+  "events": {
+    "subscribe": [
+      "project.changed",
+      "project.renamed",
+      "e028-caller:tick"
+    ]
+  }
+}

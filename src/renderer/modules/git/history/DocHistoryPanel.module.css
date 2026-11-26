@@ -1,0 +1,371 @@
+/* E-038 — the History panel docked at the right of a doc pane. Same surface, header and row
+   metrics as the Git panel (GitPanel.module.css), so a version reads like a commit there. */
+
+.panel {
+  container-type: inline-size;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 300px;
+  min-width: 0;
+  height: 100%;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+}
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  height: var(--tabstrip-h);
+  padding: 0 var(--space-2) 0 var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.headerTitle {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.headerActions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 2px;
+}
+
+.closeBtn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.closeBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.hint,
+.pickBar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: var(--space-1) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  line-height: 15px;
+}
+
+.pickBar {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.pickBar > span {
+  flex: 1;
+}
+
+.pickBtn {
+  height: 22px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.pickBtn:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+
+.list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: var(--space-2) 0;
+  overflow-y: auto;
+}
+
+/* T-223 — a group under its sub-header: the Git panel's section head (chevron, uppercase title,
+   count), the whole head one fold toggle. */
+.group + .group {
+  margin-top: var(--space-2);
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  box-sizing: border-box;
+  width: calc(100% - 2 * var(--space-2));
+  height: 24px;
+  margin: 0 var(--space-2);
+  padding: 0 var(--space-1);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.groupHead:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.groupHead:hover .groupTitle,
+.groupHead:hover .chevron {
+  color: var(--text-muted);
+}
+
+.groupTitle {
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.groupCount {
+  flex: none;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-faint);
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.row {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  height: 44px;
+  margin: 0 var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.row:hover {
+  background: var(--hover-bg);
+}
+
+.row:active {
+  background: var(--active-bg);
+}
+
+.row:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.rowPicked,
+.rowPicked:hover {
+  background: var(--selection);
+}
+
+/* The pick box shows on hover, focus and once ticked, so a resting list stays quiet. */
+.pick {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  accent-color: var(--accent-active);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.row:hover .pick,
+.row:focus-within .pick,
+.rowPicked .pick {
+  opacity: 1;
+}
+
+/* The kind's mark: a filled accent dot for unsaved edits, a dashed ring for a discarded draft, a
+   faint dot for a local-history snapshot, a hollow ring for a commit. The saved file wears where
+   git stands: a filled amber dot while not committed (the tree's "modified" color), a commit's
+   ring when it is the last commit's text, a local version's dot outside git. */
+.glyph {
+  flex: none;
+  box-sizing: border-box;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.glyph[data-kind='unsaved'] {
+  background: var(--accent);
+}
+
+.glyph[data-kind='draft'] {
+  border: 1.5px dashed var(--text-faint);
+}
+
+.glyph[data-kind='saved'][data-git='changed'] {
+  background: var(--git-modified);
+}
+
+.glyph[data-kind='saved'][data-git='committed'] {
+  border: 1.5px solid var(--text-faint);
+}
+
+.glyph[data-kind='saved'][data-git='none'] {
+  background: var(--text-faint);
+}
+
+.glyph[data-kind='snapshot'] {
+  background: var(--text-faint);
+}
+
+.glyph[data-kind='commit'] {
+  border: 1.5px solid var(--text-faint);
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The title and, on the row the editor holds, the `current` mark after it. */
+.titleLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.currentMark {
+  flex: none;
+  padding: 0 6px;
+  border-radius: var(--radius-lg);
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  line-height: 15px;
+}
+
+.title,
+.meta {
+  overflow: hidden;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.title {
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.meta {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+.restore {
+  display: none;
+  flex: none;
+  height: 22px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.row:hover .restore,
+.row:focus-within .restore {
+  display: inline-flex;
+  align-items: center;
+}
+
+.restore:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+
+.note {
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+  line-height: 17px;
+}
+
+.more {
+  align-self: flex-start;
+  height: 24px;
+  margin: var(--space-1) var(--space-4);
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+
+.more:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}

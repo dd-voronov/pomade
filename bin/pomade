@@ -1,0 +1,27 @@
+#!/usr/bin/env -S node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON
+// Pomade — the `pomade` command (docs/HOST-API.md §2). Runs src/cli/pomade.ts directly under
+// Node's built-in TypeScript type stripping (Node >= 22.18): no build step, no Pomade running.
+// The repo's package.json has no "type", so Node notes that it detected ES module syntax in the
+// .ts files; that notice is silenced in the shebang.
+'use strict'
+
+const { join } = require('node:path')
+const { pathToFileURL } = require('node:url')
+
+const [major, minor] = process.versions.node.split('.').map(Number)
+if (major < 22 || (major === 22 && minor < 18)) {
+  console.error(`pomade: needs Node 22.18 or newer (running ${process.versions.node})`)
+  process.exit(1)
+}
+
+import(pathToFileURL(join(__dirname, '..', 'src', 'cli', 'pomade.ts')).href)
+  .then((cli) => cli.main(process.argv.slice(2)))
+  .then(
+    (code) => {
+      process.exitCode = code
+    },
+    (err) => {
+      console.error(`pomade: ${(err && err.stack) || err}`)
+      process.exitCode = 1
+    }
+  )

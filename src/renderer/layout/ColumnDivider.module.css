@@ -1,0 +1,22 @@
+/* E-007 (T-029) — draggable column divider. A thin transparent hit strip that sits on the
+   seam between two columns; the seam line itself is the adjacent column's border. Highlights
+   on hover/focus so the grab target is discoverable. */
+.divider {
+  flex: none;
+  width: 6px;
+  margin: 0 -3px; /* center the 6px hit strip on the 1px column border, no layout shift */
+  z-index: var(--z-column-divider);
+  cursor: col-resize;
+  background: transparent;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.divider:hover,
+.divider:focus-visible {
+  background: var(--accent-soft);
+}
+
+.divider:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}

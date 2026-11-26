@@ -1,0 +1,340 @@
+/* E-040 — the conflict tab. The header and the side labels reuse the comparison tab's
+   (ComparePane.module.css); below them five columns — theirs · → · result · ← · yours — one row per
+   stretch of the file. The action bar (the preview line and Mark resolved & continue) sits above the
+   columns, where no toast covers it. */
+
+.pane {
+  --conflict-gap: 28px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-raised);
+  outline: none;
+}
+
+.abort {
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--danger);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+.abort:hover:not(:disabled) {
+  background: var(--danger-soft);
+}
+.abort:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.abort:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.summary {
+  flex: none;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--warning-soft);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  line-height: var(--lh);
+}
+.summary b {
+  font-weight: var(--fw-semibold);
+}
+
+.files {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+.fileChip {
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+.fileChip[aria-selected='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.fileChip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* The label row's spacers sit over the two arrow columns. */
+.labels {
+  scrollbar-gutter: stable;
+}
+.labelGap {
+  flex: none;
+  width: var(--conflict-gap);
+}
+.labelGap + span {
+  border-left: 1px solid var(--border);
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  background: var(--bg);
+}
+
+.code {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 20px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* A stretch both sides agree on: across all columns, muted. */
+.same {
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+.same .code {
+  color: var(--text-muted);
+}
+.fold {
+  display: block;
+  margin: 2px 0;
+  padding: 0 var(--space-1);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  font: inherit;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+.fold:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+/* A conflict: theirs · → · result · ← · yours. */
+.conflict {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--conflict-gap) minmax(0, 1fr) var(--conflict-gap) minmax(0, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+.theirs,
+.yours,
+.resultCell {
+  min-width: 0;
+  padding: var(--space-1) var(--space-3);
+}
+.theirs {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.yours {
+  background: color-mix(in srgb, var(--git-new) 9%, transparent);
+}
+.resultCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: var(--panel-raised);
+}
+.arrowCol {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-1);
+  background: var(--bg);
+}
+.arrowCol + .resultCell {
+  border-left: 1px solid var(--border);
+}
+.arrow {
+  width: 22px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.arrow:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+.arrow:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+.empty {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-style: italic;
+  line-height: 20px;
+}
+
+.result {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 var(--space-1);
+  border: 1px dashed var(--warning);
+  border-radius: var(--radius-sm);
+  background: var(--warning-soft);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 20px;
+  overflow-y: hidden;
+  resize: none;
+}
+.result[data-decided] {
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.result::placeholder {
+  color: var(--text-faint);
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+}
+.result:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.reset {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  font: inherit;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+.reset:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* A file combined whole. */
+.whole {
+  padding: var(--space-3);
+}
+.wholeNote {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3) 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+.whole .wholeNote {
+  padding: 0;
+}
+.cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  font-size: var(--fs-sm);
+}
+.card[data-chosen] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.cardText {
+  color: var(--text);
+}
+.cardBtn {
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+.cardBtn:hover {
+  border-color: var(--accent);
+}
+
+.actionBar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+.actionText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh);
+}
+.primary {
+  flex: none;
+  height: 28px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+.primary:hover:not(:disabled) {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.primary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}

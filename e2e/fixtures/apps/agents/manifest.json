@@ -1,0 +1,12 @@
+{
+  "id": "pomade-agents",
+  "name": "Agents (test)",
+  "version": "0.1.0",
+  "hostApi": 0,
+  "entry": "index.html",
+  "capabilities": ["project.read", "agentTabs.read", "agentTabs.write", "tabs.open"],
+  "api": ["roster.list", "sessions.forRepo", "sessions.liveIn"],
+  "events": {
+    "subscribe": ["pomade.ready", "agentTab.changed", "agentTab.exited"]
+  }
+}

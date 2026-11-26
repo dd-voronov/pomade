@@ -1,0 +1,28 @@
+{
+  "id": "hello",
+  "name": "Hello",
+  "version": "0.1.0",
+  "hostApi": 0,
+  "entry": "index.html",
+  "icon": "icon.svg",
+  "capabilities": ["project.read", "files.read"],
+  "strip": [
+    { "id": "panel", "title": "Hello panel", "icon": "panel.svg", "action": "panel", "route": "panel" },
+    { "id": "tab", "title": "Hello tab", "action": "tab", "route": "tab" },
+    { "id": "both", "title": "Hello board", "icon": "board.svg", "action": "both", "route": "board", "panelRoute": "needs-you" }
+  ],
+  "tabKinds": {
+    "output": { "title": "Output", "icon": "output.svg" }
+  },
+  "shortcuts": [
+    { "id": "board", "title": "Open the board", "key": "Cmd+Shift+Y", "action": "tab", "route": "board" },
+    { "id": "roadmap", "title": "Open the roadmap", "key": "Cmd+Alt+P", "action": "tab", "route": "roadmap/T-001" },
+    { "id": "close", "title": "Close", "key": "Cmd+W", "action": "tab" },
+    { "id": "quick-add", "title": "Quick add", "key": "Cmd+Shift+J", "action": "overlay", "route": "quick-add" }
+  ],
+  "skills": ["skills/hello-roadmap"],
+  "events": {
+    "publish": ["pinged"],
+    "subscribe": ["pomade.ready", "project.created", "project.renamed", "project.removed", "project.opened", "project.changed", "project.updated", "agentTab.exited", "hello-other:pinged", "hello:pinged"]
+  }
+}

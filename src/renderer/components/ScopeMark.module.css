@@ -1,0 +1,38 @@
+/* Pomade — T-101 (E-021) scope mark (exclamation triangle) + its themed hover tooltip. */
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  cursor: default;
+  outline: none;
+}
+
+.mark svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.mark:focus-visible {
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+/* E-025 — the Unbound ⚠️ variant is a real click target (opens the recovery popover). */
+.clickable {
+  cursor: pointer;
+}
+
+/* Colour = location severity. Orange = outside the active project (or duplicate-only);
+   red = outside the workspace. */
+.warning {
+  color: var(--warning);
+}
+
+.danger {
+  color: var(--danger);
+}

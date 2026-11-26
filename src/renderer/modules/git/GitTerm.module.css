@@ -1,0 +1,15 @@
+/* E-039 — a git term: a quiet dotted underline says "hover me"; the text keeps its own colour. */
+.term {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--text-faint);
+  text-underline-offset: 2px;
+  cursor: help;
+}
+.term:hover {
+  text-decoration-color: var(--text-muted);
+}
+.term:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}

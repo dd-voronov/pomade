@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+// Pomade — the `pomade-git` command from a source checkout (docs/modules/git/pomade-git.md). Runs
+// the built command, out/main/pomade-git.js (`npm run build` makes it), under Node. A Pomade puts
+// its own `pomade-git` in its command folder (~/.pomade/bin, a dev Pomade's ~/.pomade-dev/bin),
+// which runs the same file with Pomade's runtime.
+'use strict'
+
+const { existsSync } = require('node:fs')
+const { join } = require('node:path')
+
+const built = join(__dirname, '..', 'out', 'main', 'pomade-git.js')
+if (!existsSync(built)) {
+  console.error(`pomade-git: ${built} is not built yet — run npm run build in ${join(__dirname, '..')}`)
+  process.exit(1)
+}
+require(built)

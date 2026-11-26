@@ -1,0 +1,268 @@
+/* Pomade E-006 (T-026) — unified Settings surface styling. Shared by the modal shell and
+   every section component (one stylesheet keeps the surface visually consistent). */
+
+.layout {
+  display: flex;
+  gap: var(--space-4);
+  min-height: 340px;
+}
+
+/* ── Left nav rail ── */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 160px;
+  min-width: 160px;
+  padding-right: var(--space-3);
+  border-right: 1px solid var(--border);
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  min-height: var(--hit-target);
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.navItem:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.navActive,
+.navActive:hover {
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
+
+/* ── Right content pane ── */
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Section primitives ── */
+.sectionTitle {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 var(--space-3);
+}
+
+.sectionTitle + .sectionTitle,
+.group + .group {
+  margin-top: var(--space-5);
+}
+
+.group {
+  margin-top: var(--space-5);
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowLabel {
+  font-size: var(--fs-base);
+  color: var(--text);
+}
+
+.hint {
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+}
+
+.pathStatus {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* A row's button keeps its label on one line; the text column wraps instead. */
+.rowAction {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.muted {
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--hit-target);
+  font-size: var(--fs-base);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.select {
+  height: var(--hit-target);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.wsPath {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.btn,
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--hit-target);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.btn {
+  border: 1px solid var(--border-strong);
+  background: var(--panel-raised);
+  color: var(--text);
+}
+.btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btnPrimary {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+.btnPrimary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.iconRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hit-target);
+  height: var(--hit-target);
+  font-size: var(--fs-base);
+  color: var(--text-faint);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.iconRemove:hover {
+  color: var(--danger);
+  background: var(--hover-bg);
+}
+
+/* A row right after a list editor keeps the list labels' distance from it. */
+.rowAfterList {
+  margin-top: var(--space-2);
+}
+
+/* A list editor's own label inside a group (Local history's two extension lists). */
+.listLabel {
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+/* ── Editable name lists (File tree ignored items, Local history extensions) ── */
+.ignoreList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.ignoreRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--hit-target);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+}
+
+.ignoreName {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
+/* An entry that names nothing on disk any more (an unwatched folder since deleted): kept, faint. */
+.ignoreNameDimmed {
+  color: var(--text-faint);
+}
+
+.addRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.textInput {
+  flex: 1;
+  height: var(--hit-target);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+.textInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}

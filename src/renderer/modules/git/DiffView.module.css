@@ -1,0 +1,78 @@
+.diff {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--panel-raised);
+}
+
+.switcher {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.modeBtn {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.modeBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.modeActive,
+.modeActive:hover {
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.labels {
+  display: flex;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--badge-fg);
+  border-bottom: 1px solid var(--border);
+}
+
+.labelA,
+.labelB {
+  flex: 1 1 50%;
+  padding: var(--space-1) var(--space-3);
+  background: var(--accent-soft);
+}
+
+.labelA {
+  border-right: 1px solid var(--border);
+}
+
+.mergeHost {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mergeHost :global(.cm-mergeView),
+.mergeHost :global(.cm-mergeViewEditors) {
+  height: 100%;
+}
+
+.loading,
+.error {
+  padding: var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.error {
+  color: var(--danger);
+}

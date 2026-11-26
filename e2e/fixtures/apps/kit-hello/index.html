@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hello</title>
+    <!-- Pomade's design tokens (pomade-kit/tokens.css) come in through src/main.ts. -->
+    <style>
+      body { font: var(--fs-base)/var(--lh) var(--font-ui); margin: var(--space-4); color: var(--text); background: var(--bg); }
+      h1 { font-size: var(--fs-xl); font-weight: var(--fw-semibold); margin: 0 0 var(--space-3); }
+      p { margin: var(--space-2) 0; }
+      button { font: inherit; color: var(--text); background: var(--panel-raised); border: 1px solid var(--border-strong);
+        border-radius: var(--radius-md); padding: 2px var(--space-2); min-height: var(--hit-target); cursor: pointer; }
+      button:hover:not(:disabled) { background: var(--panel); }
+      button:active:not(:disabled) { background: var(--active-bg); }
+      button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+      button:disabled { color: var(--text-faint); cursor: default; }
+      table { border-collapse: collapse; }
+      th, td { text-align: left; padding: 2px var(--space-3) 2px 0; }
+      th { color: var(--text-muted); font-weight: var(--fw-medium); }
+      .error { color: var(--danger); }
+      body.overlay { margin: var(--space-3); }
+      body.overlay textarea { box-sizing: border-box; display: block; width: 100%; font: inherit; color: var(--text);
+        background: var(--panel-raised); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+        padding: 6px var(--space-2); resize: none; overflow: hidden; }
+      .skill-notice { display: flex; gap: var(--space-3); align-items: center; margin: 0 0 var(--space-3); padding: var(--space-2) 10px;
+        border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--accent-soft); }
+      .skill-notice p { margin: 0; flex: 1; }
+      .about { margin: var(--space-2) 0 var(--space-3); padding: var(--space-2) 10px; border: 1px solid var(--border);
+        border-radius: var(--radius-md); background: var(--panel-raised); }
+      .about h2 { margin: 0 0 6px; font-size: var(--fs-base); }
+      .about ul { margin: 0; padding-left: 18px; }
+      code { font: var(--fs-sm) var(--font-mono); word-break: break-all; }
+      [hidden] { display: none !important; }
+    </style>
+    <script type="module" crossorigin src="./assets/index-Bp5O6nQS.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BhnL-3vN.css">
+  </head>
+  <body>
+    <div class="skill-notice" data-testid="skill-notice" hidden>
+      <p data-testid="skill-notice-text"></p>
+      <button type="button" data-testid="skill-notice-dismiss">Got it</button>
+    </div>
+    <h1 data-testid="title">Hello</h1>
+    <button type="button" data-testid="about-toggle">About</button>
+    <section class="about" data-testid="about" hidden>
+      <h2>About Hello</h2>
+      <p data-testid="about-version"></p>
+      <p>Skills this app ships for agents — copy or link a folder into an agent's skills folder:</p>
+      <ul data-testid="about-skills"></ul>
+    </section>
+    <p data-testid="state">Connecting…</p>
+    <p data-testid="group"></p>
+    <p data-testid="agents"></p>
+    <p data-testid="git"></p>
+    <p>
+      <button type="button" data-testid="use-done">Toggle done/ folder</button>
+      <button type="button" data-testid="pick-folder">Choose folder…</button>
+      <button type="button" data-testid="only-claude">Only claude</button>
+    </p>
+    <p data-testid="folder"></p>
+    <p data-testid="launches"></p>
+    <p data-testid="route"></p>
+    <button type="button" data-testid="open-tab" hidden>Open the roadmap in a tab</button>
+    <button type="button" data-testid="back-to-board" hidden>Back to board</button>
+    <p>
+      <button type="button" data-testid="open-output-scraper">Open Scraper output</button>
+      <button type="button" data-testid="open-output-deploy">Open Deploy output</button>
+    </p>
+    <p data-testid="keyed" hidden>
+      <span data-testid="tab-key"></span>
+      <button type="button" data-testid="retitle-tab">Mark done in the title</button>
+      <button type="button" data-testid="close-tab">Close this tab</button>
+    </p>
+    <p data-testid="events"></p>
+    <p><button type="button" data-testid="greet" disabled>Greet</button> <span data-testid="listeners"></span></p>
+    <p><button type="button" data-testid="notify">Notify me</button></p>
+    <p><button type="button" data-testid="open-ticker">Open the ticker</button></p>
+    <p><button type="button" data-testid="ask-backend">Ask the backend</button> <span data-testid="backend-status"></span></p>
+    <p><button type="button" data-testid="open-overlay">Quick note…</button></p>
+    <p>
+      <input type="text" data-testid="scope-path" placeholder="Folder: workspace-relative or absolute" aria-label="Scope folder" />
+      <button type="button" data-testid="scope-add">Add to project scope</button>
+      <button type="button" data-testid="scope-remove">Remove from project scope</button>
+      <span data-testid="scope-status"></span>
+    </p>
+    <p>
+      <button type="button" data-testid="scratch-new">New scratch file</button>
+      <button type="button" data-testid="scratch-delete">Trash scratch files</button>
+      <span data-testid="scratch-status"></span>
+    </p>
+    <table data-testid="rows"></table>
+  </body>
+</html>

@@ -1,0 +1,993 @@
+/* E-037 — the Git panel. Same surface, header and row metrics as the Files panel (FileTree.module.css):
+   rows sit 8px in from the panel edge with 8px of inner padding, so every row's content starts at
+   16px — level with the header title. A 14px leading column (the tree's twisty column) holds the
+   section chevrons and merge chevrons; file icons and commit subjects start right after it. */
+
+.panel {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  width: var(--filetree-w);
+  min-width: var(--filetree-w);
+  height: 100%;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+}
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.headerTitle {
+  min-width: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 2px;
+}
+
+.headerBtn,
+.backBtn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.headerBtn:hover,
+.backBtn:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+.headerBtn:focus-visible,
+.backBtn:focus-visible,
+.repoRow:focus-visible,
+.fileRow:focus-visible,
+.commitRow:focus-visible,
+.sectionToggle:focus-visible,
+.mergeToggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  padding-bottom: var(--space-4);
+  overflow-y: auto;
+  /* Like the tree: the scrollbar's gutter is reserved, so rows never reflow when it appears. */
+  scrollbar-gutter: stable;
+}
+
+.empty {
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+  line-height: var(--lh);
+}
+
+/* ── shared row bits ── */
+
+.repoLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  height: 16px;
+}
+
+.repoName,
+.repoTitle {
+  flex: 0 1 auto;
+  min-width: 3ch;
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repoTitle {
+  font-weight: var(--fw-semibold);
+}
+
+.repoBranch {
+  display: inline-flex;
+  /* the branch gives way before the repo name does */
+  flex: 0 100 auto;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.repoBranch svg {
+  flex: none;
+}
+
+.repoBranchName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.counts {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.countDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--git-modified);
+}
+
+.countArrow {
+  margin-right: -2px;
+  font-weight: var(--fw-semibold);
+}
+
+.remote {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remoteLabel {
+  color: var(--text-muted);
+}
+
+.unpublished {
+  color: var(--git-modified);
+}
+
+/* "Local only — commits exist only on this Mac": a muted warning, not an alarm. It is the one
+   remote line that wraps — the whole sentence is the message. */
+.localOnly {
+  color: var(--git-modified);
+  white-space: normal;
+}
+
+.repoLine:has(.localOnly) {
+  height: auto;
+  min-height: 16px;
+  line-height: 16px;
+}
+
+/* A local path remote keeps its end (the repo's own folder) when it has to be cut. */
+.remotePath {
+  display: block;
+  direction: rtl;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remoteError {
+  color: var(--danger);
+}
+
+/* ── All repositories ── */
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* A repo row and the Scheduled lines under it. */
+.repoItem {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The last pomade-git run: one muted line; a failure in the danger colour. */
+.runLine {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.runLabel {
+  color: var(--text-muted);
+}
+
+.runFailed,
+.runFailed .runLabel {
+  color: var(--danger);
+}
+
+/* A failure's reason is the message: it wraps to two lines before it is cut. */
+.runFailed {
+  display: -webkit-box;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.repoLine:has(.runFailed) {
+  height: auto;
+  min-height: 16px;
+  line-height: 16px;
+}
+
+/* "Scheduled: Commit & push · 13:00, 20:00 — edit in Runner" — under its row, aligned with the
+   row's text, wrapping as one sentence; the link is the one click target. */
+.scheduledLine {
+  min-width: 0;
+  margin: 0 var(--space-2);
+  padding: 0 var(--space-2) var(--space-1);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  line-height: 16px;
+}
+
+.scheduledLabel {
+  color: var(--text-muted);
+}
+
+.inlineLink {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.inlineLink:hover {
+  text-decoration: underline;
+}
+
+.inlineLink:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+.inlineLink:disabled {
+  color: var(--text-faint);
+  cursor: default;
+  text-decoration: none;
+}
+
+.repoRow {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: 0;
+  min-height: 44px;
+  margin: 0 var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.repoRow:hover {
+  background: var(--hover-bg);
+}
+
+.repoRow:active {
+  background: var(--active-bg);
+}
+
+/* ── one repo ── */
+
+.repoView {
+  display: flex;
+  flex-direction: column;
+}
+
+.repoHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  margin: 0 var(--space-2) var(--space-1);
+  padding: 0 var(--space-2);
+}
+
+/* With a back arrow the head starts at the arrow; the arrow's own padding keeps the glyph level
+   with the rows' 16px content start. */
+.repoHead:has(.backBtn) {
+  padding-left: 0;
+}
+
+.repoHeadText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-2);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  height: var(--tree-row-h);
+  margin: 0 var(--space-2);
+  padding: 0 var(--space-1) 0 var(--space-2);
+}
+
+.list > .sectionHead {
+  margin-bottom: var(--space-1);
+}
+
+.sectionToggle {
+  display: inline-flex;
+  /* gives way (its title ellipsizes) before a head action does */
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  height: 20px;
+  margin-left: calc(-1 * var(--space-1));
+  padding: 0 var(--space-1);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sectionToggle:hover .sectionTitle,
+.sectionToggle:hover .chevron {
+  color: var(--text-muted);
+}
+
+.sectionTitle {
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sectionCount {
+  flex: none;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-faint);
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+/* ── Changes ── */
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  height: var(--tree-row-h);
+  margin: 0 var(--space-2);
+  /* past the 14px chevron column, level with the section title */
+  padding: 0 var(--space-2) 0 calc(var(--space-2) + 14px + var(--space-1));
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.fileRow:hover {
+  background: var(--hover-bg);
+}
+
+.fileRow:active {
+  background: var(--active-bg);
+}
+
+.fileIcon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--tree-icon);
+  height: var(--tree-icon);
+  color: var(--text-muted);
+}
+
+.fileName {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The folder, muted, after the name; it gives way first when the panel is narrow. */
+.fileDir {
+  flex: 0 100 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+}
+
+.letter {
+  flex: none;
+  width: 14px;
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: center;
+}
+
+/* ── History ── */
+
+.history {
+  display: flex;
+  flex-direction: column;
+}
+
+.commitRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  height: 40px;
+  margin: 0 var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.commitRow:hover {
+  background: var(--hover-bg);
+}
+
+.commitRow:active {
+  background: var(--active-bg);
+}
+
+/* The commit whose details tab is the active tab. */
+.commitSelected,
+.commitSelected:hover,
+.commitSelected:active {
+  background: var(--selection);
+}
+
+.commitGutter {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 100%;
+}
+
+.mergeToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 24px;
+  margin: 0 -2px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+.mergeToggle:hover {
+  background: var(--active-bg);
+}
+
+.mergeToggle:hover .chevron {
+  color: var(--text);
+}
+
+.commitText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.commitSubject,
+.commitMeta {
+  overflow: hidden;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commitSubject {
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.commitMeta {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+/* A merge's own commits, under it: indented one step, with the tree's guide line at the
+   chevron's centre. */
+.inner {
+  display: flex;
+  flex-direction: column;
+  margin-left: calc(var(--space-2) + var(--space-2) + 7px);
+  border-left: 1px solid var(--border);
+}
+
+.inner .commitRow {
+  margin-left: var(--space-1);
+}
+
+.inner .note {
+  margin-left: var(--space-1);
+}
+
+.note {
+  margin: 0 var(--space-2);
+  padding: var(--space-1) var(--space-2) var(--space-1) calc(var(--space-2) + 14px + var(--space-1));
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+  line-height: 16px;
+}
+
+.noteError {
+  color: var(--danger);
+}
+
+.sentinel {
+  height: 1px;
+}
+
+/* "Every commit" (a CheckToggle): a narrow panel keeps the box (its tooltip says what it does) and drops
+   the words. */
+@container (max-width: 200px) {
+  .checkLabel {
+    display: none;
+  }
+}
+
+/* ── E-039: operations ── */
+
+/* "Commit & push…" in the Changes head: a quiet text button, like "Every commit". */
+.sectionAction {
+  flex: 0 0.25 auto;
+  min-width: 0;
+  height: 20px;
+  overflow: hidden;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.sectionAction:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--hover-bg);
+}
+.sectionAction:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.sectionAction:focus-visible,
+.rowAction:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* Discard on a change row: shown on hover or focus, just before the status letter. */
+.rowAction {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+}
+.rowAction + .letter {
+  margin-left: 2px;
+}
+.fileRow:hover .rowAction,
+.fileRow:focus-within .rowAction,
+.rowAction:focus-visible {
+  opacity: 1;
+}
+.rowAction:hover {
+  background: var(--active-bg);
+  color: var(--text);
+}
+
+/* The time a discarded file was discarded, at the row's end. */
+.fileWhen {
+  /* the time gives way before the name does */
+  flex: 0 1000 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: auto;
+  padding-left: var(--space-1);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* A failed operation in this repo: a red dot before the name, until the repo is opened. */
+.rowMark {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+@container (max-width: 200px) {
+  .fileWhen {
+    display: none;
+  }
+}
+
+/* E-040 — a change row's end: Stage / Unstage and Discard on hover, then the status letter. */
+.rowTail {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+.rowTail .rowAction,
+.rowTail .letter {
+  margin-left: 0;
+}
+
+/* E-040 — Staged / Unstaged inside Changes, while anything is staged. */
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 22px;
+  margin: 0 var(--space-2);
+  padding: 0 var(--space-2) 0 calc(var(--space-2) + 14px + var(--space-1));
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+.groupCount {
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* E-040 — a stopped git operation (a rebase on a conflict): what is going on and the way out. */
+.opBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 var(--space-2) var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--warning-soft);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  line-height: var(--lh);
+}
+.opBarText {
+  overflow-wrap: anywhere;
+}
+.opBarActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.opBarBtn {
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+.opBarBtn[data-variant='primary'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+.opBarBtn:hover {
+  border-color: var(--accent);
+}
+.opBarBtn[data-variant='primary']:hover {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+.opBarBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* E-040 — Fetch, small, right after the remote it looks at. */
+.fetchBtn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 16px;
+  margin-left: calc(-1 * var(--space-1));
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+.fetchBtn:hover:not(:disabled) {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+.fetchBtn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.fetchBtn[data-busy] {
+  color: var(--accent);
+  opacity: 1;
+}
+.fetchBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* ── E-041: In progress ── */
+
+.progressRow {
+  height: 40px;
+}
+
+.progressIcon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 100%;
+  color: var(--text-muted);
+}
+
+.progressIcon[data-kind='remote'] {
+  color: var(--text-faint);
+}
+
+.progressName {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  line-height: 16px;
+}
+
+.progressBranch {
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--fs-base);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A row with its agent session's line under the meta line (E-043). */
+.progressRow[data-session] {
+  height: 56px;
+}
+
+.progressSession {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  align-self: flex-start;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--fs-xs);
+  line-height: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.progressSession:hover .progressSessionName,
+.progressSession:focus-visible .progressSessionName {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.progressSession:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-radius: var(--radius-sm);
+}
+
+.progressSessionAgent,
+.progressSessionSep {
+  flex: none;
+  white-space: nowrap;
+}
+
+.progressSessionSep {
+  color: var(--text-faint);
+}
+
+.progressSessionName {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progressSessionUnnamed {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.progressLive {
+  flex: none;
+  padding: 0 5px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: 15px;
+}
+
+/* T-310 — Discarded: Forget after the time (it already took the auto margin), and the inline ask. */
+.rowActionEnd {
+  margin-left: var(--space-1);
+}
+.forgetRow {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-1) var(--space-2);
+  height: auto;
+  min-height: var(--tree-row-h);
+  line-height: 1.35;
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-1);
+  cursor: default;
+}
+.forgetRow:hover,
+.forgetRow:active {
+  background: transparent;
+}
+.forgetText {
+  /* the question takes its own line when the buttons don't fit beside it */
+  flex: 1 1 12em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text);
+}
+.forgetBtn {
+  flex: none;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.forgetBtn:hover {
+  background: var(--hover-bg);
+}
+.forgetBtn[data-variant='danger'] {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.forgetBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}

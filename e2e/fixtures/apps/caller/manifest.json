@@ -1,0 +1,20 @@
+{
+  "id": "e028-caller",
+  "name": "E-028 caller",
+  "version": "0.1.0",
+  "hostApi": 0,
+  "capabilities": [],
+  "calls": [
+    "e028-test",
+    "e028-missing"
+  ],
+  "backend": {
+    "entry": "backend/main.mjs",
+    "mode": "with-pomade"
+  },
+  "events": {
+    "publish": [
+      "tick"
+    ]
+  }
+}

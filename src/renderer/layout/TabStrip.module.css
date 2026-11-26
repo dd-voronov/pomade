@@ -1,0 +1,294 @@
+.strip {
+  display: flex;
+  align-items: stretch;
+  height: var(--tabstrip-h);
+  min-height: var(--tabstrip-h);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.tabs {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* T-062 — the scroller must be able to shrink below its content within the strip flex row,
+     otherwise `overflow-x: auto` never engages (the flex item grows to fit its content instead).
+     min-width:0 lets the tabs shrink to their floor and THEN the strip scrolls horizontally. */
+  min-width: 0;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  max-width: 200px;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.tab:hover {
+  background: var(--hover-bg);
+}
+
+.active {
+  background: var(--panel-raised);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.tabIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-icon);
+  height: var(--control-icon);
+  flex: none;
+  color: var(--text-faint);
+}
+.active .tabIcon {
+  color: var(--text-muted);
+}
+
+.tabTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* T-228 — the project's preview tab (a single click opened it; the next one replaces it). */
+.previewTitle {
+  font-style: italic;
+}
+
+/* E-033 — an agent tab whose session an app marked unnamed: the default title in italics. */
+.unnamedTitle {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+/* E-034 — an attached tab's owner, after its title ("Coda web · Runner"). */
+.tabOwner {
+  color: var(--text-muted);
+}
+
+.renameInput {
+  min-width: 60px;
+  max-width: 130px;
+  padding: 1px var(--space-1);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+  outline: none;
+}
+
+/* ── Per-tab soft color tints (E-004 / T-021) ── */
+.tab[data-color='red'] {
+  background: var(--tab-tint-red);
+}
+.tab[data-color='amber'] {
+  background: var(--tab-tint-amber);
+}
+.tab[data-color='green'] {
+  background: var(--tab-tint-green);
+}
+.tab[data-color='teal'] {
+  background: var(--tab-tint-teal);
+}
+.tab[data-color='blue'] {
+  background: var(--tab-tint-blue);
+}
+.tab[data-color='purple'] {
+  background: var(--tab-tint-purple);
+}
+.tab.active[data-color='red'] {
+  background: var(--tab-tint-red-active);
+}
+.tab.active[data-color='amber'] {
+  background: var(--tab-tint-amber-active);
+}
+.tab.active[data-color='green'] {
+  background: var(--tab-tint-green-active);
+}
+.tab.active[data-color='teal'] {
+  background: var(--tab-tint-teal-active);
+}
+.tab.active[data-color='blue'] {
+  background: var(--tab-tint-blue-active);
+}
+.tab.active[data-color='purple'] {
+  background: var(--tab-tint-purple-active);
+}
+
+/* ── Drag-and-drop reorder drop indicator (E-004 / T-048) ── */
+.tab {
+  position: relative;
+}
+.dropBefore::before,
+.dropAfter::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+.dropBefore::before {
+  left: -1px;
+}
+.dropAfter::after {
+  right: -1px;
+}
+
+/* T-087 — the "move to END" drop zone: the free strip area between the last tab and the actions
+   cluster. `flex: 1` makes it claim the WHOLE visually-empty remainder of the row (the actions
+   cluster keeps its right edge — its `margin-left: auto` simply absorbs nothing now); with tabs
+   overflowing it shrinks to zero and the scroller keeps its full width (T-062 untouched). Its
+   active line is the same 2px accent insertion line as the between-tab indicators, drawn on the
+   left edge — flush with the last tab's right edge, and outside the scroller so nothing clips it. */
+.endZone {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.endZoneActive::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.dirty {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+
+/* T-056 — per-tab "wants attention" dot: mirrors the blue dirty dot but danger-red, on the
+   right side of a terminal/agent tab. Cleared when the tab is activated. */
+.attention {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--danger);
+  flex: none;
+}
+
+/* E-033 — the "unnamed session" dot: the dirty/attention dots' size, hollow and muted, so it reads
+   as a reminder rather than a status. */
+.unnamed {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 1.5px solid var(--text-muted);
+  flex: none;
+}
+
+/* E-012 (round-3) — symlink glyph in a doc tab: the bare accent chain-link (no chip), between
+   the title and the close ×. Smaller than the tree/editor chip since space is tight here.
+   E-012 (final) — now a keyboard-focusable button opening the target popover. */
+.symlink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.symlink:hover {
+  color: var(--accent-active);
+}
+
+.symlink:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+.close:hover {
+  background: var(--active-bg);
+  color: var(--text);
+}
+
+.add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.add:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+/* T-158 — the tab context menu + tab-strip end-zone menu render through the shared
+   ContextMenu primitive; only the color-swatch content classes remain here. */
+.ctxSwatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  flex: none;
+}
+.ctxSwatchNone {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--panel);
+  flex: none;
+}

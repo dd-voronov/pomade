@@ -1,0 +1,116 @@
+:root {
+  color-scheme: light dark;
+  --fg: #1f2328;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #ffffff;
+  --err: #b42318;
+  --ok: #1a7f37;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e6e6e6;
+    --muted: #9aa0a6;
+    --line: #2f3338;
+    --bg: #1b1d20;
+    --err: #ff8a80;
+    --ok: #7ee2a8;
+  }
+}
+body {
+  margin: 0;
+  padding: 20px 24px;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+header {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+#copy,
+#open-overlay {
+  flex: none;
+  white-space: nowrap;
+  font: inherit;
+}
+#copy {
+  margin-left: auto;
+}
+#status {
+  font-size: 12px;
+  color: var(--muted);
+}
+#status[data-state='connected'] {
+  color: var(--ok);
+}
+#status[data-state='standalone'],
+#status[data-state='rejected'] {
+  color: var(--err);
+}
+.muted {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+table {
+  margin-top: 16px;
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 6px 10px 6px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+th {
+  font-weight: 600;
+  color: var(--muted);
+}
+td.error {
+  color: var(--err);
+}
+/* The overlay (quick-add shortcut): only the form. */
+body.overlay {
+  padding: 16px;
+}
+body.overlay > :not(#quick-add) {
+  display: none;
+}
+#quick-add {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#quick-add[hidden] {
+  display: none;
+}
+#quick-add label {
+  font-size: 15px;
+  font-weight: 600;
+}
+#quick-add input {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+}
+#quick-add p {
+  margin: 0;
+}
+#quick-add input:focus {
+  outline: none;
+  border-color: #4fb8d8;
+  box-shadow: 0 0 0 3px rgba(79, 184, 216, 0.55);
+}

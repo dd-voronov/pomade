@@ -1,0 +1,65 @@
+/* E-036 — git marks in the file tree. Rows themselves are FileTree.module.css's; these classes ride
+   on them: the trailing status letter, the folder dot, the name tints, and ghost rows (deleted). */
+
+/* Trailing column, right-aligned like the symlink indicator (which sits left of it when both). */
+.letter {
+  flex: none;
+  margin-left: auto;
+  width: 14px;
+  text-align: center;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.dot {
+  flex: none;
+  margin-left: auto;
+  /* Centered in the same 14px column a letter occupies, so dots and letters line up. */
+  width: 6px;
+  height: 6px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: var(--git-modified);
+}
+
+/* After a symlink indicator the auto margin belongs to the indicator. */
+.afterSymlink {
+  margin-left: var(--space-1);
+}
+
+.tintModified {
+  color: var(--git-modified);
+}
+
+.tintNew {
+  color: var(--git-new);
+}
+
+.tintConflict {
+  color: var(--git-conflict);
+}
+
+.tintRenamed {
+  color: var(--git-renamed);
+}
+
+.tintDeleted {
+  color: var(--git-deleted);
+}
+
+/* A deleted file or folder shown in its old place. */
+.ghost {
+  color: var(--git-deleted);
+}
+
+.ghost[data-kind] .ghostIcon {
+  color: var(--git-deleted);
+  opacity: 0.7;
+}
+
+.ghostName {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}

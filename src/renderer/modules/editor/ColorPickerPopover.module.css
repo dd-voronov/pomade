@@ -1,0 +1,190 @@
+/* Pomade E-019 · T-068 — color picker popup. Chrome (panel, borders, buttons, motion) comes
+   from tokens.css and matches SymlinkPopover exactly — the shared Popover primitive
+   (components/Popover.tsx, T-169) owns the scrim/panel shell. The only literal colors are the
+   ones a color picker IS made of — the hue wheel, the white/black saturation-value gradients and
+   the transparency checkerboard — which are physical, not themeable. */
+
+.pop {
+  overflow: hidden;
+  font-size: var(--fs-base);
+}
+
+.pop:focus {
+  outline: none;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.original {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-normal);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3) var(--space-3);
+}
+
+/* ── Saturation / value area ──
+   Base = the pure hue; white gradient across x (→ saturation), black gradient down y (→ value). */
+.sv {
+  position: relative;
+  height: 132px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background-image: linear-gradient(to top, #000, rgba(0, 0, 0, 0)),
+    linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.hue,
+.alpha {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.hue {
+  background-image: linear-gradient(
+    to right,
+    hsl(0 100% 50%),
+    hsl(60 100% 50%),
+    hsl(120 100% 50%),
+    hsl(180 100% 50%),
+    hsl(240 100% 50%),
+    hsl(300 100% 50%),
+    hsl(360 100% 50%)
+  );
+}
+
+/* Transparency checkerboard — one conic tile paints a 2×2 check. */
+.alpha,
+.chip {
+  background-color: var(--panel-raised);
+  background-image: conic-gradient(
+    var(--border-strong) 0 25%,
+    var(--panel-raised) 0 50%,
+    var(--border-strong) 0 75%,
+    var(--panel-raised) 0
+  );
+  background-size: 8px 8px;
+}
+
+.alphaFill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.thumb {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(31, 41, 51, 0.35), var(--shadow-1);
+  pointer-events: none;
+}
+
+/* ── Result preview ── */
+.preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 18px;
+}
+
+.chip {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+}
+
+.chipFill {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Actions (identical to the symlink popover's row) ── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.btn {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.btn:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+}
+
+.btnPrimary {
+  border-color: var(--accent);
+  color: var(--badge-fg);
+  background: var(--accent-soft);
+}
+
+.btnPrimary:hover {
+  background: var(--accent-soft);
+  color: var(--badge-fg);
+}
